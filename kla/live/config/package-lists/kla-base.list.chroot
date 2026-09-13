@@ -1,0 +1,9 @@
+# 基础系统与 live 启动支持
+linux-image-amd64
+live-boot
+live-config
+live-config-systemd
+systemd-sysv
+init
+dbus
+sudo

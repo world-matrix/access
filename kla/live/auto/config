@@ -1,0 +1,72 @@
+#!/bin/sh
+# live-build 主配置。由 `lb config` 读取。
+set -e
+
+# 镜像。deb.debian.org 在国内慢到无法使用（实测 8 MB 的索引要跑几分钟），
+# 而一次构建要往 chroot 里拉几百 MB 的包。用环境变量覆盖可换源：
+#   KLA_MIRROR=http://mirrors.aliyun.com/debian lb config
+MIRROR="${KLA_MIRROR:-http://mirrors.tuna.tsinghua.edu.cn/debian}"
+MIRROR_SECURITY="${KLA_MIRROR_SECURITY:-${MIRROR}-security}"
+
+lb config noauto \
+    --distribution           trixie \
+    --archive-areas          "main contrib non-free non-free-firmware" \
+    --architecture           amd64 \
+    --linux-flavours         amd64 \
+    --binary-image           iso-hybrid \
+    --debian-installer       none \
+    --memtest                memtest86+ \
+    --iso-application        "KARL'S LIGHT ACCESS" \
+    --iso-publisher          "KLA" \
+    --iso-volume             "KLA_RESCUE" \
+    --bootappend-live        "boot=live components quiet splash noeject hostname=kla-access username=kla" \
+    --apt-recommends         false \
+    --firmware-chroot        false \
+    --firmware-binary        false \
+    --compression            xz \
+    --checksums              sha256 \
+    --uefi-secure-boot       auto \
+    --mirror-bootstrap       "$MIRROR" \
+    --mirror-chroot          "$MIRROR" \
+    --mirror-chroot-security "$MIRROR_SECURITY" \
+    --mirror-binary          "$MIRROR" \
+    --mirror-binary-security "$MIRROR_SECURITY" \
+    "${@}"
+
+# ---------------------------------------------------------------------
+# 几个关键参数的说明，改之前先读：
+#
+# --mirror-bootstrap / --mirror-chroot
+#   前者给 debootstrap 用（拉最小系统），后者给 chroot 内的 apt 用
+#   （装我们那几个包列表）。两个都得设，只设一个的话另一半仍走官方源。
+#   --mirror-binary 决定的是**成品救援系统里** sources.list 的内容；
+#   救援环境基本不 apt install，但设成同一个镜像没有坏处。
+#
+# --firmware-chroot false
+#   这个开关为 true 时，live-build 会把归档区里**所有** firmware-* 包
+#   自动装进 chroot——包括我们在 kla-firmware.list.chroot 里特意不装的
+#   firmware-amd-graphics（150 MB）等 GPU 固件。那样前面所有瘦身都白做。
+#   关掉它，固件完全由我们的包列表显式控制。
+#
+# --compression xz
+#   squashfs 压缩算法。xz 比默认 gzip 小约 30%，代价是解压慢一些。
+#   救援系统从 NVMe 启动，解压不是瓶颈，体积才是（1 GB 分区预算）。
+#   若将来发现启动明显变慢，可改 zstd——体积大约 +10%，解压快 5 倍。
+#
+# --apt-recommends false
+#   不装 Recommends。这条省下的比看起来多——chromium、gparted 这类包的
+#   Recommends 链能拖进上百 MB。副作用是个别功能要手动补依赖，
+#   发现缺东西时优先加到包列表里，不要打开这个开关。
+#
+# 关于 Secure Boot：live-build 20250505 提供 --uefi-secure-boot auto|enable|disable。
+# 这里用 auto 而不是 enable：enable 是硬性要求，签名的 shim/grub 拉不到时整个
+# 构建直接失败；auto 能签就签，签不了退化成无签名 ISO。ISO 只用于验证和 U 盘
+# 启动，KLA 真正的 Secure Boot 支持在部署阶段走 shim + MOK 注册（risks.md R3），
+# 不依赖这里。
+# 首次构建出 ISO 后确认一下 EFI/boot/bootx64.efi 是不是 shim（见下面的核对命令），
+# 若不是且确实需要，再改成 enable 重建。
+#
+# 选项名核对过（live-build 20250505+deb13u1）：架构和镜像类型都是**单数**
+# ——--architecture / --binary-image。写成复数会让 lb config 直接失败。
+# 换了 live-build 版本后可重跑 .cache/check-lb.sh 复查。
+# ---------------------------------------------------------------------

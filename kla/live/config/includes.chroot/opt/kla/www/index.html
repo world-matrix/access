@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KARL'S LIGHT ACCESS</title>
+<link rel="icon" type="image/png" href="assets/logo.png">
+<link rel="stylesheet" href="app.css">
+</head>
+<body>
+
+<!-- ══ 启动画面 ══
+     壁纸原图上下两条黑边里印着标题和版权，所以这里用 contain 而不是 cover：
+     cover 会把它们裁掉，contain 留出的边和 body 的黑底是同一个黑，接不出缝。
+     硬件检查动画住在这里：文本框（#splashTip）+ 进度条（#splashFill），
+     boot() 按步骤推进，全部就绪后移除。 -->
+<div id="splash" class="splash">
+  <div class="splash-box">
+    <div class="splash-tip" id="splashTip">正在检测系统与固件信息…</div>
+    <div class="splash-bar"><div class="splash-fill" id="splashFill"></div></div>
+  </div>
+</div>
+
+<!-- ══ 顶部横幅：对应 Access IBM 预桌面区域的标题条 ══ -->
+<header class="banner">
+  <div class="banner-left">
+    <img class="logo" src="assets/logo.png" alt="K'SL">
+    <div class="wordmark">
+      <span class="wm-main">KARL'S LIGHT <em>Access</em></span>
+      <span class="wm-sub">救援与恢复环境</span>
+    </div>
+  </div>
+  <div class="banner-right">
+    <button class="banner-btn" data-action="wifi" id="wifiBtn" title="连接 Wi-Fi 网络">
+      <svg class="ico16"><use href="assets/icons.svg#wifi"></use></svg><span id="wifiLabel">Wi-Fi</span>
+    </button>
+    <button class="banner-btn" data-action="mode" id="modeBtn" title="切换救援目标系统">
+      <svg class="ico16"><use href="assets/icons.svg#windows"></use></svg><span id="modeLabel">目标：Windows</span>
+    </button>
+    <button class="banner-btn" data-action="about">
+      <svg class="ico16"><use href="assets/icons.svg#info"></use></svg>关于
+    </button>
+    <button class="banner-btn" data-action="help">
+      <svg class="ico16"><use href="assets/icons.svg#help"></use></svg>帮助文档
+    </button>
+    <button class="banner-btn" data-action="reboot">
+      <svg class="ico16"><use href="assets/icons.svg#reboot"></use></svg>重启
+    </button>
+    <button class="banner-btn" data-action="shutdown">
+      <svg class="ico16"><use href="assets/icons.svg#power"></use></svg>关机
+    </button>
+  </div>
+</header>
+
+<div class="body">
+
+  <!-- ══ 左侧分类导航：忠实复刻原版的四大类 ══ -->
+  <nav class="sidebar">
+    <ul id="nav"></ul>
+    <div class="sidebar-foot">
+      <div class="machine" id="machineName">正在识别机型…</div>
+      <div class="version">KLA 2.0 · Public Beta</div>
+    </div>
+  </nav>
+
+  <!-- ══ 中部：任务列表 / 功能向导 ══ -->
+  <main class="content">
+    <div class="content-head">
+      <button class="backbtn" id="backBtn" hidden>← 返回</button>
+      <div class="ch-text">
+        <h2 id="catTitle">救援与恢复</h2>
+        <p id="catDesc"></p>
+      </div>
+    </div>
+    <div class="content-body" id="contentBody"></div>
+  </main>
+
+  <!-- ══ 右侧帮助栏：原版右下角的说明区 ══ -->
+  <aside class="helppane">
+    <h3>说明</h3>
+    <div id="helpBody" class="help-body">
+      把鼠标移到左边的任务上，这里会显示它的详细说明。
+    </div>
+  </aside>
+
+</div>
+
+<!-- ══ 底部状态条 ══ -->
+<footer class="statusbar" id="statusbar">
+  <span class="st-item"><i class="dot"></i>正在探测硬件…</span>
+</footer>
+
+<!-- ══ 全局模态挂载点：关于/帮助/协议 ══ -->
+<div id="modalHost"></div>
+
+<!-- ══ 首次进入：选择救援目标系统（Windows / Linux）══ -->
+<div id="modePick" class="mode-pick" hidden>
+  <div class="mode-box">
+    <div class="mode-title">你要救援的系统是？</div>
+    <div class="mode-sub">这决定主界面显示哪些工具。随时可以通过右上角按钮切换。</div>
+    <div class="mode-cards">
+      <button class="mode-card" data-mode="windows">
+        <svg class="mode-ico"><use href="assets/icons.svg#windows"></use></svg>
+        <div class="mc-title">Windows</div>
+        <div class="mc-desc">恢复出厂 · 备份还原 · 文件救援 · 修复启动 · 账户密码</div>
+      </button>
+      <button class="mode-card" data-mode="linux">
+        <svg class="mode-ico"><use href="assets/icons.svg#penguin"></use></svg>
+        <div class="mc-title">Linux</div>
+        <div class="mc-desc">WiFi/声卡/黑屏修复 · 重建引导 · 重置密码 · 文件系统修复</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>

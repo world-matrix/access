@@ -1,0 +1,69 @@
+# ===== 核心：备份/还原 =====
+# wimtools 提供 wimlib-imagex / wimcapture / wimapply
+# 与 Windows 侧 wimlib 同库同格式，这是跨平台还原的基础
+wimtools
+ntfs-3g
+
+# ===== 分区与文件系统 =====
+gdisk
+parted
+gparted
+dosfstools
+e2fsprogs
+exfatprogs
+mtools
+
+# ===== 硬件诊断 =====
+smartmontools
+nvme-cli
+memtester
+stress-ng
+lm-sensors
+hdparm
+dmidecode
+pciutils
+usbutils
+lshw
+# 实用工具箱：硬盘/内存读速测试 + CPU 详细信息
+util-linux   # 提供 lscpu / lsblk（基础系统一般带，这里显式拉一下）
+mbw          # 内存带宽基准（实用工具箱 → 内存读速）
+
+# ===== 数据恢复 =====
+testdisk
+gddrescue
+safecopy
+
+# ===== Windows 维护 =====
+chntpw
+
+# ===== 网络共享 =====
+# mount -t cifs 需要它，「网络位置」功能要用
+cifs-utils
+
+# ===== 远程协助 / SSH =====
+# 「高级功能 → SSH 设置 / 远程协助」：开机后允许技术人员 ssh 连入救援
+# 环境操作。内存盘运行，密码重启即失效，安全性可接受。
+openssh-server
+
+# ===== UEFI 引导自救 =====
+# 这一组是「ACCESS 能不能把自己救回来」的关键，不是可选项。
+#
+# 场景：用户一键恢复出厂后，wimapply 把 C: 还原了，但 ESP 里 KLA 的
+# Boot#### 项可能已经不在（有些 OEM 固件会在检测到系统盘变化时清理启动项，
+# 用户手动改过启动顺序也会）。没有 efibootmgr，ACCESS 就再也起不来了——
+# 一个救不回自己的救援分区等于没有。
+efibootmgr
+# grub-install：ESP 上的 grubx64.efi 本身被破坏时重新写一份。
+# 比 efibootmgr 少见，但一旦发生只能靠它，而它只占几 MB。
+grub-efi-amd64-bin
+grub-common
+
+# ===== 通用工具 =====
+rsync
+pv
+p7zip-full
+curl
+wget
+less
+nano
+htop

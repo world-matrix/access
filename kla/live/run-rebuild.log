@@ -1,0 +1,1019 @@
+[2026-08-25 12:17:58] lb build 
+P: live-build 20250505+deb13u1
+P: Building for a debian/trixie/amd64 system
+[2026-08-25 12:17:58] lb bootstrap 
+P: Setting up clean exit handler
+[2026-08-25 12:17:58] lb bootstrap_cache restore
+W: Skipping bootstrap_cache.restore, already done
+[2026-08-25 12:17:58] lb bootstrap_debootstrap 
+P: Begin bootstrapping system...
+W: Skipping bootstrap, already done
+[2026-08-25 12:17:58] lb bootstrap_cache save
+P: Saving bootstrap stage to cache...
+W: Skipping bootstrap_cache.save, already done
+P: Bootstrap stage completed
+P: Begin unmounting filesystems...
+P: Saving caches...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:17:58] lb chroot 
+P: Setting up clean exit handler
+[2026-08-25 12:17:58] lb chroot_cache restore
+[2026-08-25 12:17:58] lb chroot_prep install all mode-archives-chroot
+[2026-08-25 12:17:58] lb chroot_devpts install
+P: Begin mounting /dev/pts...
+[2026-08-25 12:17:58] lb chroot_proc install
+P: Begin mounting /proc...
+[2026-08-25 12:17:58] lb chroot_selinuxfs install
+[2026-08-25 12:17:58] lb chroot_sysfs install
+P: Begin mounting /sys...
+[2026-08-25 12:17:58] lb chroot_debianchroot install
+P: Configuring file /etc/debian_chroot
+W: Skipping chroot_debianchroot, already done
+[2026-08-25 12:17:59] lb chroot_dpkg install
+P: Configuring file /sbin/start-stop-daemon
+dpkg-divert: warning: diverting file '/usr/sbin/start-stop-daemon' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:17:59] lb chroot_tmpfs install
+[2026-08-25 12:17:59] lb chroot_sysv-rc install
+P: Configuring file /usr/sbin/policy-rc.d
+[2026-08-25 12:17:59] lb chroot_hosts install
+P: Configuring file /etc/hosts
+[2026-08-25 12:17:59] lb chroot_resolv install
+P: Configuring file /etc/resolv.conf
+[2026-08-25 12:17:59] lb chroot_hostname install
+P: Configuring file /etc/hostname
+P: Configuring file /bin/hostname
+dpkg-divert: warning: diverting file '/usr/bin/hostname' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:17:59] lb chroot_apt install
+P: Configuring file /etc/apt/apt.conf
+[2026-08-25 12:17:59] lb chroot_archives chroot install
+P: Configuring file /etc/apt/sources.list
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+debian-archive-keyring is already the newest version (2025.1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:18:03] lb chroot_linux-image 
+P: Begin scheduling kernel image installation...
+W: Skipping chroot_linux-image, already done
+[2026-08-25 12:18:03] lb chroot_firmware 
+[2026-08-25 12:18:03] lb chroot_preseed 
+P: Begin executing local preseeds...
+W: Skipping chroot_preseed, already done
+[2026-08-25 12:18:03] lb chroot_includes_before_packages 
+P: Begin copying chroot includes before packages have been installed...
+W: Skipping chroot_includes_before_packages, already done
+[2026-08-25 12:18:03] lb chroot_package-lists install
+P: Begin queueing installation of package lists (install pass)...
+W: Skipping chroot_package-lists.install, already done
+[2026-08-25 12:18:03] lb chroot_install-packages install
+P: Begin installing packages (install pass)...
+W: Skipping chroot_install-packages.install, already done
+[2026-08-25 12:18:03] lb chroot_package-lists live
+P: Begin queueing installation of package lists (live pass)...
+W: Skipping chroot_package-lists.live, already done
+[2026-08-25 12:18:03] lb chroot_install-packages live
+P: Begin installing packages (live pass)...
+W: Skipping chroot_install-packages.live, already done
+[2026-08-25 12:18:04] lb chroot_includes_after_packages 
+P: Begin copying chroot includes after packages have been installed...
+W: Skipping chroot_includes_after_packages, already done
+[2026-08-25 12:18:04] lb chroot_hooks 
+P: Begin executing hooks...
+W: Skipping chroot_hooks, already done
+[2026-08-25 12:18:04] lb chroot_hacks 
+P: Begin executing hacks...
+W: Skipping chroot_hacks, already done
+[2026-08-25 12:18:04] lb chroot_interactive 
+[2026-08-25 12:18:04] lb chroot_prep remove all mode-archives-chroot
+[2026-08-25 12:18:04] lb chroot_archives chroot remove
+P: Deconfiguring file /etc/apt/sources.list
+Get:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease [140 kB]
+Get:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease [43.4 kB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease [47.3 kB]
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Sources [6552 B]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Sources [75.9 kB]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Sources [52.3 kB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Sources [10.5 MB]
+Get:8 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main amd64 Packages [9673 kB]
+Get:9 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Translation-en [6484 kB]
+Get:10 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib amd64 Packages [53.8 kB]
+Get:11 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Translation-en [49.6 kB]
+Get:12 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free amd64 Packages [100 kB]
+Get:13 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Translation-en [67.1 kB]
+Get:14 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware amd64 Packages [6884 B]
+Get:15 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Translation-en [4704 B]
+Get:16 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Sources [220 kB]
+Get:17 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Sources [696 B]
+Get:18 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Sources [1564 B]
+Get:19 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main amd64 Packages [240 kB]
+Get:20 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Translation-en [145 kB]
+Get:21 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib amd64 Packages [3148 B]
+Get:22 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Translation-en [2564 B]
+Get:23 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware amd64 Packages [544 B]
+Get:24 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Translation-en [352 B]
+Get:25 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Sources [1840 B]
+Get:26 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main amd64 Packages [4412 B]
+Get:27 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Translation-en [2496 B]
+Fetched 28.0 MB in 3s (8027 kB/s)
+Reading package lists...
+[2026-08-25 12:18:08] lb chroot_apt remove
+P: Deconfiguring file /etc/apt/apt.conf
+[2026-08-25 12:18:08] lb chroot_hostname remove
+P: Deconfiguring file /etc/hostname
+P: Deconfiguring file /bin/hostname
+[2026-08-25 12:18:08] lb chroot_resolv remove
+P: Deconfiguring file /etc/resolv.conf
+[2026-08-25 12:18:08] lb chroot_hosts remove
+P: Deconfiguring file /etc/hosts
+[2026-08-25 12:18:08] lb chroot_sysv-rc remove
+P: Deconfiguring file /usr/sbin/policy-rc.d
+[2026-08-25 12:18:08] lb chroot_tmpfs remove
+[2026-08-25 12:18:08] lb chroot_dpkg remove
+P: Deconfiguring file /sbin/start-stop-daemon
+[2026-08-25 12:18:08] lb chroot_debianchroot remove
+P: Deconfiguring file /etc/debian_chroot
+[2026-08-25 12:18:08] lb chroot_sysfs remove
+P: Begin unmounting /sys...
+[2026-08-25 12:18:08] lb chroot_selinuxfs remove
+[2026-08-25 12:18:08] lb chroot_proc remove
+P: Begin unmounting /proc...
+[2026-08-25 12:18:08] lb chroot_devpts remove
+P: Begin unmounting /dev/pts...
+[2026-08-25 12:18:08] lb chroot_cache save
+P: Chroot stage completed
+P: Begin unmounting filesystems...
+P: Saving caches...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:18:10] lb installer 
+P: Setting up clean exit handler
+[2026-08-25 12:18:10] lb installer_chroot 
+P: Begin copying chroot for the installer...
+[2026-08-25 12:18:12] lb chroot_prep install all mode-archives-chroot
+[2026-08-25 12:18:12] lb chroot_devpts install
+P: Begin mounting /dev/pts...
+[2026-08-25 12:18:12] lb chroot_proc install
+P: Begin mounting /proc...
+[2026-08-25 12:18:12] lb chroot_selinuxfs install
+[2026-08-25 12:18:12] lb chroot_sysfs install
+P: Begin mounting /sys...
+[2026-08-25 12:18:12] lb chroot_debianchroot install
+P: Configuring file /etc/debian_chroot
+[2026-08-25 12:18:12] lb chroot_dpkg install
+P: Configuring file /sbin/start-stop-daemon
+dpkg-divert: warning: diverting file '/usr/sbin/start-stop-daemon' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:18:13] lb chroot_tmpfs install
+[2026-08-25 12:18:13] lb chroot_sysv-rc install
+P: Configuring file /usr/sbin/policy-rc.d
+[2026-08-25 12:18:13] lb chroot_hosts install
+P: Configuring file /etc/hosts
+[2026-08-25 12:18:13] lb chroot_resolv install
+P: Configuring file /etc/resolv.conf
+[2026-08-25 12:18:13] lb chroot_hostname install
+P: Configuring file /etc/hostname
+P: Configuring file /bin/hostname
+dpkg-divert: warning: diverting file '/usr/bin/hostname' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:18:13] lb chroot_apt install
+P: Configuring file /etc/apt/apt.conf
+[2026-08-25 12:18:13] lb chroot_archives chroot install
+P: Configuring file /etc/apt/sources.list
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Get:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease [43.4 kB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease [47.3 kB]
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Sources [6552 B]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Sources [10.5 MB]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Sources [52.3 kB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Sources [75.9 kB]
+Get:8 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Translation-en [6484 kB]
+Get:9 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Translation-en [49.6 kB]
+Get:10 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Translation-en [67.1 kB]
+Get:11 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Translation-en [4704 B]
+Get:12 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Sources [696 B]
+Get:13 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Sources [1564 B]
+Get:14 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Sources [220 kB]
+Get:15 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main amd64 Packages [240 kB]
+Get:16 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Translation-en [145 kB]
+Get:17 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib amd64 Packages [3148 B]
+Get:18 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Translation-en [2564 B]
+Get:19 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware amd64 Packages [544 B]
+Get:20 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Translation-en [352 B]
+Get:21 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Sources [1840 B]
+Get:22 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main amd64 Packages [4412 B]
+Get:23 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Translation-en [2496 B]
+Fetched 18.0 MB in 3s (6296 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+debian-archive-keyring is already the newest version (2025.1).
+0 upgraded, 0 newly installed, 0 to remove and 11 not upgraded.
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Calculating upgrade...
+The following packages will be upgraded:
+  bsdutils fdisk libblkid1 libfdisk1 liblastlog2-2 libmount1 libsmartcols1
+  libuuid1 login mount util-linux
+11 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/2596 kB of archives.
+After this operation, 37.9 kB of additional disk space will be used.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../bsdutils_1%3a2.41.5-0+deb13u1_amd64.deb ...
+Unpacking bsdutils (1:2.41.5-0+deb13u1) over (1:2.41-5) ...
+Setting up bsdutils (1:2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../liblastlog2-2_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking liblastlog2-2:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up liblastlog2-2:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../fdisk_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking fdisk (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../libsmartcols1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libsmartcols1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libsmartcols1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../libblkid1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libblkid1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libblkid1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../libmount1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libmount1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libmount1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../mount_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking mount (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../libuuid1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libuuid1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libuuid1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../util-linux_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking util-linux (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up util-linux (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7812 files and directories currently installed.)
+Preparing to unpack .../libfdisk1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libfdisk1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../login_1%3a4.16.0-2+really2.41.5-0+deb13u1_amd64.deb ...
+Unpacking login (1:4.16.0-2+really2.41.5-0+deb13u1) over (1:4.16.0-2+really2.41-5) ...
+Setting up libfdisk1:amd64 (2.41.5-0+deb13u1) ...
+Setting up mount (2.41.5-0+deb13u1) ...
+Setting up login (1:4.16.0-2+really2.41.5-0+deb13u1) ...
+Setting up fdisk (2.41.5-0+deb13u1) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:18:21] lb installer_debian-installer 
+P: No installer wanted, skipping...
+[2026-08-25 12:18:21] lb installer_preseed 
+[2026-08-25 12:18:21] lb chroot_prep remove all mode-archives-chroot
+[2026-08-25 12:18:21] lb chroot_archives chroot remove
+P: Deconfiguring file /etc/apt/sources.list
+Get:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease [140 kB]
+Get:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease [43.4 kB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease [47.3 kB]
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Sources [75.9 kB]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Sources [6552 B]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Sources [10.5 MB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Sources [52.3 kB]
+Get:8 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main amd64 Packages [9673 kB]
+Get:9 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Translation-en [6484 kB]
+Get:10 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib amd64 Packages [53.8 kB]
+Get:11 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Translation-en [49.6 kB]
+Get:12 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free amd64 Packages [100 kB]
+Get:13 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Translation-en [67.1 kB]
+Get:14 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware amd64 Packages [6884 B]
+Get:15 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Translation-en [4704 B]
+Get:16 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Sources [696 B]
+Get:17 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Sources [1564 B]
+Get:18 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Sources [220 kB]
+Get:19 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main amd64 Packages [240 kB]
+Get:20 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Translation-en [145 kB]
+Get:21 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib amd64 Packages [3148 B]
+Get:22 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Translation-en [2564 B]
+Get:23 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware amd64 Packages [544 B]
+Get:24 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Translation-en [352 B]
+Get:25 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Sources [1840 B]
+Get:26 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main amd64 Packages [4412 B]
+Get:27 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Translation-en [2496 B]
+Fetched 28.0 MB in 3s (8331 kB/s)
+Reading package lists...
+[2026-08-25 12:18:25] lb chroot_apt remove
+P: Deconfiguring file /etc/apt/apt.conf
+[2026-08-25 12:18:25] lb chroot_hostname remove
+P: Deconfiguring file /etc/hostname
+P: Deconfiguring file /bin/hostname
+[2026-08-25 12:18:25] lb chroot_resolv remove
+P: Deconfiguring file /etc/resolv.conf
+[2026-08-25 12:18:26] lb chroot_hosts remove
+P: Deconfiguring file /etc/hosts
+[2026-08-25 12:18:26] lb chroot_sysv-rc remove
+P: Deconfiguring file /usr/sbin/policy-rc.d
+[2026-08-25 12:18:26] lb chroot_tmpfs remove
+[2026-08-25 12:18:26] lb chroot_dpkg remove
+P: Deconfiguring file /sbin/start-stop-daemon
+[2026-08-25 12:18:26] lb chroot_debianchroot remove
+P: Deconfiguring file /etc/debian_chroot
+[2026-08-25 12:18:26] lb chroot_sysfs remove
+P: Begin unmounting /sys...
+[2026-08-25 12:18:26] lb chroot_selinuxfs remove
+[2026-08-25 12:18:26] lb chroot_proc remove
+P: Begin unmounting /proc...
+[2026-08-25 12:18:26] lb chroot_devpts remove
+P: Begin unmounting /dev/pts...
+P: Installer stage completed
+P: Begin unmounting filesystems...
+P: Saving caches...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:18:26] lb binary 
+P: Setting up clean exit handler
+[2026-08-25 12:18:26] lb binary_chroot 
+P: Begin copying chroot...
+P: This may take a while.
+[2026-08-25 12:18:27] lb chroot_prep install devpts proc selinuxfs sysfs
+[2026-08-25 12:18:27] lb chroot_devpts install
+P: Begin mounting /dev/pts...
+[2026-08-25 12:18:27] lb chroot_proc install
+P: Begin mounting /proc...
+[2026-08-25 12:18:27] lb chroot_selinuxfs install
+[2026-08-25 12:18:27] lb chroot_sysfs install
+P: Begin mounting /sys...
+[2026-08-25 12:18:27] lb chroot_prep install dpkg tmpfs sysv-rc hosts resolv hostname apt mode-apt-install-binary mode-archives-chroot
+[2026-08-25 12:18:27] lb chroot_dpkg install
+P: Configuring file /sbin/start-stop-daemon
+dpkg-divert: warning: diverting file '/usr/sbin/start-stop-daemon' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:18:27] lb chroot_tmpfs install
+[2026-08-25 12:18:27] lb chroot_sysv-rc install
+P: Configuring file /usr/sbin/policy-rc.d
+[2026-08-25 12:18:27] lb chroot_hosts install
+P: Configuring file /etc/hosts
+[2026-08-25 12:18:27] lb chroot_resolv install
+P: Configuring file /etc/resolv.conf
+[2026-08-25 12:18:27] lb chroot_hostname install
+P: Configuring file /etc/hostname
+P: Configuring file /bin/hostname
+dpkg-divert: warning: diverting file '/usr/bin/hostname' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:18:28] lb chroot_apt install-binary
+P: Configuring file /etc/apt/apt.conf
+[2026-08-25 12:18:28] lb chroot_archives chroot install
+P: Configuring file /etc/apt/sources.list
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Get:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease [43.4 kB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease [47.3 kB]
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Sources [10.5 MB]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Sources [52.3 kB]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Sources [75.9 kB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Sources [6552 B]
+Get:8 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Translation-en [6484 kB]
+Get:9 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Translation-en [49.6 kB]
+Get:10 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Translation-en [67.1 kB]
+Get:11 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Translation-en [4704 B]
+Get:12 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Sources [696 B]
+Get:13 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Sources [1564 B]
+Get:14 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Sources [220 kB]
+Get:15 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main amd64 Packages [240 kB]
+Get:16 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Translation-en [145 kB]
+Get:17 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib amd64 Packages [3148 B]
+Get:18 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Translation-en [2564 B]
+Get:19 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware amd64 Packages [544 B]
+Get:20 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Translation-en [352 B]
+Get:21 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Sources [1840 B]
+Get:22 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main amd64 Packages [4412 B]
+Get:23 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Translation-en [2496 B]
+Fetched 18.0 MB in 3s (6662 kB/s)
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+debian-archive-keyring is already the newest version (2025.1).
+0 upgraded, 0 newly installed, 0 to remove and 11 not upgraded.
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Calculating upgrade...
+The following packages will be upgraded:
+  bsdutils fdisk libblkid1 libfdisk1 liblastlog2-2 libmount1 libsmartcols1
+  libuuid1 login mount util-linux
+11 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/2596 kB of archives.
+After this operation, 37.9 kB of additional disk space will be used.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../bsdutils_1%3a2.41.5-0+deb13u1_amd64.deb ...
+Unpacking bsdutils (1:2.41.5-0+deb13u1) over (1:2.41-5) ...
+Setting up bsdutils (1:2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../liblastlog2-2_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking liblastlog2-2:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up liblastlog2-2:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../fdisk_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking fdisk (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../libsmartcols1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libsmartcols1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libsmartcols1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../libblkid1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libblkid1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libblkid1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../libmount1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libmount1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libmount1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../mount_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking mount (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../libuuid1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libuuid1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up libuuid1:amd64 (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7807 files and directories currently installed.)
+Preparing to unpack .../util-linux_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking util-linux (2.41.5-0+deb13u1) over (2.41-5) ...
+Setting up util-linux (2.41.5-0+deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7812 files and directories currently installed.)
+Preparing to unpack .../libfdisk1_2.41.5-0+deb13u1_amd64.deb ...
+Unpacking libfdisk1:amd64 (2.41.5-0+deb13u1) over (2.41-5) ...
+Preparing to unpack .../login_1%3a4.16.0-2+really2.41.5-0+deb13u1_amd64.deb ...
+Unpacking login (1:4.16.0-2+really2.41.5-0+deb13u1) over (1:4.16.0-2+really2.41-5) ...
+Setting up libfdisk1:amd64 (2.41.5-0+deb13u1) ...
+Setting up mount (2.41.5-0+deb13u1) ...
+Setting up login (1:4.16.0-2+really2.41.5-0+deb13u1) ...
+Setting up fdisk (2.41.5-0+deb13u1) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:18:36] lb binary_rootfs 
+P: Begin building root filesystem image...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  liblzo2-2
+The following NEW packages will be installed:
+  liblzo2-2 squashfs-tools
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/249 kB of archives.
+After this operation, 683 kB of additional disk space will be used.
+Selecting previously unselected package liblzo2-2:amd64.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7814 files and directories currently installed.)
+Preparing to unpack .../liblzo2-2_2.10-3+b1_amd64.deb ...
+Unpacking liblzo2-2:amd64 (2.10-3+b1) ...
+Selecting previously unselected package squashfs-tools.
+Preparing to unpack .../squashfs-tools_1%3a4.6.1-1_amd64.deb ...
+Unpacking squashfs-tools (1:4.6.1-1) ...
+Setting up liblzo2-2:amd64 (2.10-3+b1) ...
+Setting up squashfs-tools (1:4.6.1-1) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+P: Preparing squashfs image...
+P: This may take a while.
+Parallel mksquashfs: Using 20 processors
+Creating 4.0 filesystem on filesystem.squashfs, block size 131072.
+
+Exportable Squashfs 4.0 filesystem, xz compressed, data block size 131072
+	compressed data, compressed metadata, compressed fragments,
+	compressed xattrs, compressed ids
+	duplicates are removed
+Filesystem size 643604.55 Kbytes (628.52 Mbytes)
+	36.06% of uncompressed filesystem size (1784764.47 Kbytes)
+Inode table size 179750 bytes (175.54 Kbytes)
+	25.21% of uncompressed inode table size (713002 bytes)
+Directory table size 179986 bytes (175.77 Kbytes)
+	37.79% of uncompressed directory table size (476224 bytes)
+Number of duplicate files found 620
+Number of inodes 19818
+Number of files 15779
+Number of fragments 1460
+Number of symbolic links 1345
+Number of device nodes 8
+Number of fifo nodes 0
+Number of socket nodes 0
+Number of directories 2686
+Number of hard-links 5
+Number of ids (unique uids + gids) 11
+Number of uids 4
+	root (0)
+	_apt (42)
+	systemd-network (998)
+	unknown (101)
+Number of gids 10
+	root (0)
+	shadow (42)
+	unknown (989)
+	systemd-network (998)
+	unknown (103)
+	crontab (997)
+	unknown (102)
+	unknown (990)
+	adm (4)
+	mail (8)
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  liblzo2-2* squashfs-tools*
+0 upgraded, 0 newly installed, 2 to remove and 0 not upgraded.
+After this operation, 683 kB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 7838 files and directories currently installed.)
+Removing squashfs-tools (1:4.6.1-1) ...
+Removing liblzo2-2:amd64 (2.10-3+b1) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+[2026-08-25 12:20:43] lb chroot_prep remove all mode-archives-binary
+[2026-08-25 12:20:43] lb chroot_archives binary remove
+P: Deconfiguring file /etc/apt/sources.list
+Get:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease [140 kB]
+Get:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease [43.4 kB]
+Get:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease [47.3 kB]
+Get:4 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Sources [10.5 MB]
+Get:5 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Sources [6552 B]
+Get:6 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Sources [52.3 kB]
+Get:7 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Sources [75.9 kB]
+Get:8 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main amd64 Packages [9673 kB]
+Get:9 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/main Translation-en [6484 kB]
+Get:10 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib amd64 Packages [53.8 kB]
+Get:11 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/contrib Translation-en [49.6 kB]
+Get:12 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free amd64 Packages [100 kB]
+Get:13 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free Translation-en [67.1 kB]
+Get:14 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware amd64 Packages [6884 B]
+Get:15 http://mirrors.tuna.tsinghua.edu.cn/debian trixie/non-free-firmware Translation-en [4704 B]
+Get:16 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Sources [1564 B]
+Get:17 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Sources [696 B]
+Get:18 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Sources [220 kB]
+Get:19 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main amd64 Packages [240 kB]
+Get:20 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/main Translation-en [145 kB]
+Get:21 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib amd64 Packages [3148 B]
+Get:22 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/contrib Translation-en [2564 B]
+Get:23 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware amd64 Packages [544 B]
+Get:24 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security/non-free-firmware Translation-en [352 B]
+Get:25 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Sources [1840 B]
+Get:26 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main amd64 Packages [4412 B]
+Get:27 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates/main Translation-en [2496 B]
+Fetched 28.0 MB in 4s (7938 kB/s)
+Reading package lists...
+[2026-08-25 12:20:47] lb chroot_apt remove
+P: Deconfiguring file /etc/apt/apt.conf
+[2026-08-25 12:20:47] lb chroot_hostname remove
+P: Deconfiguring file /etc/hostname
+P: Deconfiguring file /bin/hostname
+[2026-08-25 12:20:47] lb chroot_resolv remove
+P: Deconfiguring file /etc/resolv.conf
+[2026-08-25 12:20:48] lb chroot_hosts remove
+P: Deconfiguring file /etc/hosts
+[2026-08-25 12:20:48] lb chroot_sysv-rc remove
+P: Deconfiguring file /usr/sbin/policy-rc.d
+[2026-08-25 12:20:48] lb chroot_tmpfs remove
+[2026-08-25 12:20:48] lb chroot_dpkg remove
+P: Deconfiguring file /sbin/start-stop-daemon
+[2026-08-25 12:20:48] lb chroot_debianchroot remove
+P: Deconfiguring file /etc/debian_chroot
+W: Skipping removal of chroot_debianchroot, it is not applied
+[2026-08-25 12:20:48] lb chroot_sysfs remove
+P: Begin unmounting /sys...
+[2026-08-25 12:20:48] lb chroot_selinuxfs remove
+[2026-08-25 12:20:48] lb chroot_proc remove
+P: Begin unmounting /proc...
+[2026-08-25 12:20:48] lb chroot_devpts remove
+P: Begin unmounting /dev/pts...
+[2026-08-25 12:20:48] lb chroot_prep install all mode-archives-binary
+[2026-08-25 12:20:48] lb chroot_devpts install
+P: Begin mounting /dev/pts...
+[2026-08-25 12:20:48] lb chroot_proc install
+P: Begin mounting /proc...
+[2026-08-25 12:20:48] lb chroot_selinuxfs install
+[2026-08-25 12:20:48] lb chroot_sysfs install
+P: Begin mounting /sys...
+[2026-08-25 12:20:48] lb chroot_debianchroot install
+P: Configuring file /etc/debian_chroot
+[2026-08-25 12:20:48] lb chroot_dpkg install
+P: Configuring file /sbin/start-stop-daemon
+dpkg-divert: warning: diverting file '/usr/sbin/start-stop-daemon' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:20:48] lb chroot_tmpfs install
+[2026-08-25 12:20:48] lb chroot_sysv-rc install
+P: Configuring file /usr/sbin/policy-rc.d
+[2026-08-25 12:20:49] lb chroot_hosts install
+P: Configuring file /etc/hosts
+[2026-08-25 12:20:49] lb chroot_resolv install
+P: Configuring file /etc/resolv.conf
+[2026-08-25 12:20:49] lb chroot_hostname install
+P: Configuring file /etc/hostname
+P: Configuring file /bin/hostname
+dpkg-divert: warning: diverting file '/usr/bin/hostname' from an Essential package with rename is dangerous, use --no-rename
+[2026-08-25 12:20:49] lb chroot_apt install
+P: Configuring file /etc/apt/apt.conf
+[2026-08-25 12:20:49] lb chroot_archives binary install
+P: Configuring file /etc/apt/sources.list
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+debian-archive-keyring is already the newest version (2025.1).
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Hit:1 http://mirrors.tuna.tsinghua.edu.cn/debian trixie InRelease
+Hit:2 http://mirrors.tuna.tsinghua.edu.cn/debian-security trixie-security InRelease
+Hit:3 http://mirrors.tuna.tsinghua.edu.cn/debian trixie-updates InRelease
+Reading package lists...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Calculating upgrade...
+0 upgraded, 0 newly installed, 0 to remove and 0 not upgraded.
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:20:53] lb binary_dm-verity 
+[2026-08-25 12:20:53] lb binary_manifest 
+P: Begin creating manifest...
+[2026-08-25 12:20:53] lb binary_package-lists 
+P: Begin installing local package lists...
+[2026-08-25 12:20:53] lb binary_linux-image 
+P: Begin install linux-image...
+[2026-08-25 12:20:53] lb binary_memtest 
+P: Begin installing memtest...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Suggested packages:
+  grub-efi | grub-pc
+The following NEW packages will be installed:
+  memtest86+
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/137 kB of archives.
+After this operation, 13.1 MB of additional disk space will be used.
+Selecting previously unselected package memtest86+.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25343 files and directories currently installed.)
+Preparing to unpack .../memtest86+_7.20-1_amd64.deb ...
+Unpacking memtest86+ (7.20-1) ...
+Setting up memtest86+ (7.20-1) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  memtest86+*
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 13.1 MB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25358 files and directories currently installed.)
+Removing memtest86+ (7.20-1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25344 files and directories currently installed.)
+Purging configuration files for memtest86+ (7.20-1) ...
+[2026-08-25 12:20:55] lb binary_grub-legacy 
+[2026-08-25 12:20:55] lb binary_grub-pc 
+[2026-08-25 12:20:55] lb binary_grub_cfg 
+P: Begin installing config for grub-pc and/or grub-efi, and loopback support...
+[2026-08-25 12:20:55] lb binary_syslinux 
+P: Begin installing syslinux...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Suggested packages:
+  xorriso
+The following NEW packages will be installed:
+  isolinux syslinux-common
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/1299 kB of archives.
+After this operation, 3741 kB of additional disk space will be used.
+Selecting previously unselected package isolinux.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25343 files and directories currently installed.)
+Preparing to unpack .../isolinux_3%3a6.04~git20190206.bf6db5b4+dfsg1-3.1_all.deb ...
+Unpacking isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Selecting previously unselected package syslinux-common.
+Preparing to unpack .../syslinux-common_3%3a6.04~git20190206.bf6db5b4+dfsg1-3.1_all.deb ...
+Unpacking syslinux-common (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Setting up isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Setting up syslinux-common (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  isolinux* syslinux-common*
+0 upgraded, 0 newly installed, 2 to remove and 0 not upgraded.
+After this operation, 3741 kB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25577 files and directories currently installed.)
+Removing isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Removing syslinux-common (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+[2026-08-25 12:20:57] lb binary_disk 
+P: Begin installing disk information...
+[2026-08-25 12:20:58] lb binary_loadlin 
+[2026-08-25 12:20:58] lb binary_win32-loader 
+[2026-08-25 12:20:58] lb binary_includes 
+P: Begin copying binary includes...
+0 blocks
+[2026-08-25 12:20:58] lb binary_grub-efi 
+P: Begin preparing Grub based EFI support...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  grub-efi-ia32-unsigned
+The following NEW packages will be installed:
+  grub-efi-ia32-bin grub-efi-ia32-unsigned
+0 upgraded, 2 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/2015 kB of archives.
+After this operation, 10.1 MB of additional disk space will be used.
+Selecting previously unselected package grub-efi-ia32-unsigned.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25343 files and directories currently installed.)
+Preparing to unpack .../grub-efi-ia32-unsigned_2.12-9+deb13u2_amd64.deb ...
+Unpacking grub-efi-ia32-unsigned (2.12-9+deb13u2) ...
+Selecting previously unselected package grub-efi-ia32-bin.
+Preparing to unpack .../grub-efi-ia32-bin_2.12-9+deb13u2_amd64.deb ...
+Unpacking grub-efi-ia32-bin (2.12-9+deb13u2) ...
+Setting up grub-efi-ia32-unsigned (2.12-9+deb13u2) ...
+Setting up grub-efi-ia32-bin (2.12-9+deb13u2) ...
+!!! The following error/warning messages can be ignored !!!
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  grub2-common mokutil openssl shim-helpers-amd64-signed shim-signed-common
+  shim-unsigned
+Suggested packages:
+  ca-certificates
+The following NEW packages will be installed:
+  grub2-common mokutil openssl shim-helpers-amd64-signed shim-signed
+  shim-signed-common shim-unsigned
+Preconfiguring packages ...
+0 upgraded, 7 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/3288 kB of archives.
+After this operation, 8262 kB of additional disk space will be used.
+Selecting previously unselected package mokutil.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25643 files and directories currently installed.)
+Preparing to unpack .../0-mokutil_0.7.2-1_amd64.deb ...
+Unpacking mokutil (0.7.2-1) ...
+Selecting previously unselected package openssl.
+Preparing to unpack .../1-openssl_3.5.6-1~deb13u2_amd64.deb ...
+Unpacking openssl (3.5.6-1~deb13u2) ...
+Selecting previously unselected package shim-signed-common.
+Preparing to unpack .../2-shim-signed-common_1.51~1+deb13u1+16.1-2~deb13u1_all.deb ...
+Unpacking shim-signed-common (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Selecting previously unselected package shim-unsigned:amd64.
+Preparing to unpack .../3-shim-unsigned_16.1-2~deb13u1_amd64.deb ...
+Unpacking shim-unsigned:amd64 (16.1-2~deb13u1) ...
+Selecting previously unselected package shim-helpers-amd64-signed.
+Preparing to unpack .../4-shim-helpers-amd64-signed_1+16.1+2~deb13u1_amd64.deb ...
+Unpacking shim-helpers-amd64-signed (1+16.1+2~deb13u1) ...
+Selecting previously unselected package grub2-common.
+Preparing to unpack .../5-grub2-common_2.12-9+deb13u2_amd64.deb ...
+Unpacking grub2-common (2.12-9+deb13u2) ...
+Selecting previously unselected package shim-signed:amd64.
+Preparing to unpack .../6-shim-signed_1.51~1+deb13u1+16.1-2~deb13u1_amd64.deb ...
+shim-signed: checking if we can safely install /usr/lib/shim/shimx64.efi.signed
+  EFI variables are not supported on this system; assuming shim installation is safe.
+Unpacking shim-signed:amd64 (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Setting up mokutil (0.7.2-1) ...
+Setting up grub2-common (2.12-9+deb13u2) ...
+Setting up openssl (3.5.6-1~deb13u2) ...
+Setting up shim-unsigned:amd64 (16.1-2~deb13u1) ...
+Setting up shim-signed-common (1.51~1+deb13u1+16.1-2~deb13u1) ...
+No DKMS packages installed: not changing Secure Boot validation state.
+Setting up shim-helpers-amd64-signed (1+16.1+2~deb13u1) ...
+Setting up shim-signed:amd64 (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following NEW packages will be installed:
+  grub-efi-amd64-signed
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/1363 kB of archives.
+After this operation, 9720 kB of additional disk space will be used.
+Selecting previously unselected package grub-efi-amd64-signed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 26090 files and directories currently installed.)
+Preparing to unpack .../grub-efi-amd64-signed_1+2.12+9+deb13u2_amd64.deb ...
+Unpacking grub-efi-amd64-signed (1+2.12+9+deb13u2) ...
+Setting up grub-efi-amd64-signed (1+2.12+9+deb13u2) ...
+!!! The above error/warning messages can be ignored !!!
+P: UEFI Secure Boot support enabled.
+mkfs.fat 4.2 (2021-01-31)
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  grub-efi-amd64-signed* grub-efi-ia32-bin* grub-efi-ia32-unsigned*
+  grub2-common* mokutil* openssl* shim-helpers-amd64-signed* shim-signed*
+  shim-signed-common* shim-unsigned*
+WARNING: The following essential packages will be removed.
+This should NOT be done unless you know exactly what you are doing!
+  grub-efi-amd64-signed
+0 upgraded, 0 newly installed, 10 to remove and 0 not upgraded.
+After this operation, 28.0 MB disk space will be freed.
+dpkg: warning: overriding problem because --force enabled:
+dpkg: warning: this is a protected package; it should not be removed
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 26100 files and directories currently installed.)
+Removing grub-efi-amd64-signed (1+2.12+9+deb13u2) ...
+Removing grub-efi-ia32-bin (2.12-9+deb13u2) ...
+Removing grub-efi-ia32-unsigned (2.12-9+deb13u2) ...
+Removing shim-signed:amd64 (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Removing grub2-common (2.12-9+deb13u2) ...
+Removing shim-signed-common (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Removing mokutil (0.7.2-1) ...
+Removing openssl (3.5.6-1~deb13u2) ...
+Removing shim-helpers-amd64-signed (1+16.1+2~deb13u1) ...
+Removing shim-unsigned:amd64 (16.1-2~deb13u1) ...
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25347 files and directories currently installed.)
+Purging configuration files for grub2-common (2.12-9+deb13u2) ...
+Purging configuration files for shim-signed:amd64 (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Purging configuration files for shim-signed-common (1.51~1+deb13u1+16.1-2~deb13u1) ...
+Purging configuration files for shim-helpers-amd64-signed (1+16.1+2~deb13u1) ...
+Purging configuration files for openssl (3.5.6-1~deb13u2) ...
+[2026-08-25 12:21:03] lb binary_bootloader_splash 
+P: Begin preparing the bootloader splash image...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following NEW packages will be installed:
+  librsvg2-bin
+0 upgraded, 1 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/1967 kB of archives.
+After this operation, 7056 kB of additional disk space will be used.
+Selecting previously unselected package librsvg2-bin.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25343 files and directories currently installed.)
+Preparing to unpack .../librsvg2-bin_2.60.0+dfsg-1_amd64.deb ...
+Unpacking librsvg2-bin (2.60.0+dfsg-1) ...
+Setting up librsvg2-bin (2.60.0+dfsg-1) ...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  librsvg2-bin*
+0 upgraded, 0 newly installed, 1 to remove and 0 not upgraded.
+After this operation, 7056 kB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25352 files and directories currently installed.)
+Removing librsvg2-bin (2.60.0+dfsg-1) ...
+[2026-08-25 12:21:06] lb binary_hooks 
+P: Begin executing hooks...
+[2026-08-25 12:21:06] lb binary_checksums 
+P: Begin creating binary sha256sum.txt...
+[2026-08-25 12:21:07] lb binary_iso 
+P: Begin building binary iso image...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following additional packages will be installed:
+  libburn4t64 libisoburn1t64 libisofs6t64 libjte2
+Suggested packages:
+  xorriso-tcltk jigit cdck
+Recommended packages:
+  syslinux-common
+The following NEW packages will be installed:
+  isolinux libburn4t64 libisoburn1t64 libisofs6t64 libjte2 xorriso
+0 upgraded, 6 newly installed, 0 to remove and 0 not upgraded.
+Need to get 0 B/1233 kB of archives.
+After this operation, 2693 kB of additional disk space will be used.
+Selecting previously unselected package isolinux.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25343 files and directories currently installed.)
+Preparing to unpack .../0-isolinux_3%3a6.04~git20190206.bf6db5b4+dfsg1-3.1_all.deb ...
+Unpacking isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Selecting previously unselected package libburn4t64:amd64.
+Preparing to unpack .../1-libburn4t64_1.5.6-1.1+b1_amd64.deb ...
+Unpacking libburn4t64:amd64 (1.5.6-1.1+b1) ...
+Selecting previously unselected package libjte2:amd64.
+Preparing to unpack .../2-libjte2_1.22-4+b2_amd64.deb ...
+Unpacking libjte2:amd64 (1.22-4+b2) ...
+Selecting previously unselected package libisofs6t64:amd64.
+Preparing to unpack .../3-libisofs6t64_1.5.6.pl01-1.1+b1_amd64.deb ...
+Unpacking libisofs6t64:amd64 (1.5.6.pl01-1.1+b1) ...
+Selecting previously unselected package libisoburn1t64:amd64.
+Preparing to unpack .../4-libisoburn1t64_1.5.6-1.2+b1_amd64.deb ...
+Unpacking libisoburn1t64:amd64 (1.5.6-1.2+b1) ...
+Selecting previously unselected package xorriso.
+Preparing to unpack .../5-xorriso_1.5.6-1.2+b1_amd64.deb ...
+Unpacking xorriso (1.5.6-1.2+b1) ...
+Setting up isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Setting up libjte2:amd64 (1.22-4+b2) ...
+Setting up libisofs6t64:amd64 (1.5.6.pl01-1.1+b1) ...
+Setting up libburn4t64:amd64 (1.5.6-1.1+b1) ...
+Setting up libisoburn1t64:amd64 (1.5.6-1.2+b1) ...
+Setting up xorriso (1.5.6-1.2+b1) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+xorriso 1.5.6 : RockRidge filesystem manipulator, libburnia project.
+
+xorriso : NOTE : Environment variable SOURCE_DATE_EPOCH encountered with value 1787631478
+Drive current: -outdev 'stdio:live-image-amd64.hybrid.iso'
+Media current: stdio file, overwriteable
+Media status : is blank
+Media summary: 0 sessions, 0 data blocks, 0 data,  233g free
+xorriso : NOTE : -as mkisofs: Ignored option '-cache-inodes'
+Added to ISO image: directory '/'='/binary'
+xorriso : UPDATE :     309 files added in 1 seconds
+xorriso : UPDATE :     309 files added in 1 seconds
+xorriso : NOTE : Copying to System Area: 432 bytes from file '/usr/lib/ISOLINUX/isohdpfx.bin'
+libisofs: NOTE : Aligned image size to cylinder size by 363 blocks
+xorriso : UPDATE :  14.38% done
+ISO image produced: 354816 sectors
+Written to medium : 354816 sectors at LBA 0
+Writing to 'stdio:live-image-amd64.hybrid.iso' completed successfully.
+
+Reading package lists...
+Building dependency tree...
+Reading state information...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+The following packages will be REMOVED:
+  isolinux* libburn4t64* libisoburn1t64* libisofs6t64* libjte2* xorriso*
+0 upgraded, 0 newly installed, 6 to remove and 0 not upgraded.
+After this operation, 2693 kB disk space will be freed.
+(Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 25425 files and directories currently installed.)
+Removing isolinux (3:6.04~git20190206.bf6db5b4+dfsg1-3.1) ...
+Removing xorriso (1.5.6-1.2+b1) ...
+Removing libisoburn1t64:amd64 (1.5.6-1.2+b1) ...
+Removing libburn4t64:amd64 (1.5.6-1.1+b1) ...
+Removing libisofs6t64:amd64 (1.5.6.pl01-1.1+b1) ...
+Removing libjte2:amd64 (1.22-4+b2) ...
+Processing triggers for libc-bin (2.41-12+deb13u3) ...
+[2026-08-25 12:21:10] lb binary_onie 
+[2026-08-25 12:21:10] lb binary_netboot 
+[2026-08-25 12:21:10] lb binary_tar 
+[2026-08-25 12:21:10] lb binary_hdd 
+[2026-08-25 12:21:10] lb binary_zsync 
+[2026-08-25 12:21:10] lb chroot_prep remove dpkg tmpfs sysv-rc hosts resolv hostname apt
+[2026-08-25 12:21:10] lb chroot_apt remove
+P: Deconfiguring file /etc/apt/apt.conf
+[2026-08-25 12:21:10] lb chroot_hostname remove
+P: Deconfiguring file /etc/hostname
+P: Deconfiguring file /bin/hostname
+[2026-08-25 12:21:10] lb chroot_resolv remove
+P: Deconfiguring file /etc/resolv.conf
+[2026-08-25 12:21:10] lb chroot_hosts remove
+P: Deconfiguring file /etc/hosts
+[2026-08-25 12:21:10] lb chroot_sysv-rc remove
+P: Deconfiguring file /usr/sbin/policy-rc.d
+[2026-08-25 12:21:11] lb chroot_tmpfs remove
+[2026-08-25 12:21:11] lb chroot_dpkg remove
+P: Deconfiguring file /sbin/start-stop-daemon
+[2026-08-25 12:21:11] lb chroot_prep remove devpts proc selinuxfs sysfs
+[2026-08-25 12:21:11] lb chroot_sysfs remove
+P: Begin unmounting /sys...
+[2026-08-25 12:21:11] lb chroot_selinuxfs remove
+[2026-08-25 12:21:11] lb chroot_proc remove
+P: Begin unmounting /proc...
+[2026-08-25 12:21:11] lb chroot_devpts remove
+P: Begin unmounting /dev/pts...
+P: Binary stage completed
+P: Begin unmounting filesystems...
+P: Saving caches...
+Reading package lists...
+Building dependency tree...
+Reading state information...
+[2026-08-25 12:21:11] lb source 
+P: Source stage disabled, skipping
+P: Build completed successfully

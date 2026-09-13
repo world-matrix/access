@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  占位 Logo。显示在蓝色横幅左侧，高度 30px，宽度自适应。
+  替换成你的美术资源时保持这个文件名即可，index.html 不用改。
+  横幅是深蓝底，所以图形请用白色或浅色。
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" width="40" height="40">
+  <rect x="1" y="1" width="38" height="38" rx="6"
+        fill="none" stroke="#ffffff" stroke-width="2" opacity=".85"/>
+  <g fill="#ffffff">
+    <rect x="8"  y="10" width="24" height="3" rx="1.5"/>
+    <rect x="8"  y="15.5" width="24" height="3" rx="1.5" opacity=".8"/>
+    <rect x="8"  y="21" width="16" height="3" rx="1.5" opacity=".6"/>
+    <rect x="8"  y="26.5" width="10" height="3" rx="1.5" opacity=".4"/>
+  </g>
+</svg>

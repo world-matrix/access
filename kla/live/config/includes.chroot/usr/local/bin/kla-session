@@ -1,0 +1,25 @@
+#!/bin/sh
+# ACCESS 会话：Python 后端 + Chromium kiosk 前端
+set -e
+
+/usr/bin/python3 /opt/kla/server.py &
+KLA_SERVER_PID=$!
+
+/usr/bin/openbox &
+
+# 等后端起来再拉前端
+for i in $(seq 1 30); do
+    if [ -e /run/kla-ui.ready ]; then break; fi
+    sleep 0.2
+done
+
+exec /usr/bin/chromium \
+    --kiosk \
+    --app=http://127.0.0.1:8760/ \
+    --no-sandbox \
+    --no-first-run \
+    --disable-translate \
+    --disable-features=TranslateUI \
+    --disable-pinch \
+    --overscroll-history-navigation=0 \
+    --user-data-dir=/tmp/kla-chromium

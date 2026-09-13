@@ -1,0 +1,186 @@
+﻿产品  KARL'S LIGHT ACCESS  1.0.0
+公司  KARL'S LIGHT(China)
+版权  ©Copyright KARL'S LIGHT CO.LTD All rights reserved. Designed by KARL'S LIGHT in Guiyang
+
+[1/5] 跳过图片资源
+
+[1.5/5] 同步 image\ → bin\image\
+      bin\image\ 现有 6 个文件
+[2/5] 生成 AssemblyInfo
+[3/5] 生成清单
+[4/5] 编译
+
+      [ESP 资产嵌入]
+        + grubx64.efi       2,328,000 B
+        + grub.cfg             7,698 B
+        + wallpaper.png      689,347 B
+        + memtest.efi        157,184 B
+      KarlsLightAccess.exe  3,841,024 字节
+      版本资源  KARL'S LIGHT ACCESS / 1.0.0.0 / KARL'S LIGHT(China)
+[5/5] 跳过自检（-SkipSelfTest）
+
+
+═══════════════════════════════════════════════════
+[阶段 2/2] 编译安装引导 Setup.exe
+═══════════════════════════════════════════════════
+
+      [Setup 源码]  主程序 14 + 安装器 1 = 16 个 .cs（含 AssemblyInfo）
+      正在调用 csc 编译 Setup.exe …
+
+      产物    KLA-Setup.exe  699,392 字节
+      别名    KARLS LIGHT ACCESS Setup.exe（同等大小，双击用）
+      版本资源  KARL'S LIGHT ACCESS / 1.0.0.0 / KARL'S LIGHT(China)
+
+      [准备 Setup 发布目录 installer\bin\payload]
+        payload\image\  7 个文件 · 3,075.0 MB
+        payload\bin\    20 个文件 · 0.7 MB（wimlib 1.14.4 备份引擎）
+
+[2/2] Setup 自检跳过（-SkipSelfTest）
+
+
+═══════════════════════════════════════════════════
+[阶段 3/4] 合成单个 EXE 安装包（Setup.exe + payload → 单文件 ≈ 1.03 GB）
+═══════════════════════════════════════════════════
+      正在编译 _make-single.exe（构建期合成工具，asInvoker/控制台）…
+      工具产物  _make-single.exe  699,392 字节
+
+      [合成] KLA-Setup.exe (650KB) + payload\image\access.img (1GB) → 单个 EXE
+      本步骤需要读取写入 ~1.03 GB，机械盘约 20-60 秒，稍候…
+
+      [构造单 EXE]   3%   (写入 payload 数据段)
+      [构造单 EXE]   4%   (写入 payload 数据段)
+      [构造单 EXE]   5%   (写入 payload 数据段)
+      [构造单 EXE]   6%   (写入 payload 数据段)
+      [构造单 EXE]   7%   (写入 payload 数据段)
+      [构造单 EXE]   8%   (写入 payload 数据段)
+      [构造单 EXE]   9%   (写入 payload 数据段)
+      [构造单 EXE]  10%   (写入 payload 数据段)
+      [构造单 EXE]  11%   (写入 payload 数据段)
+      [构造单 EXE]  12%   (写入 payload 数据段)
+      [构造单 EXE]  13%   (写入 payload 数据段)
+      [构造单 EXE]  14%   (写入 payload 数据段)
+      [构造单 EXE]  15%   (写入 payload 数据段)
+      [构造单 EXE]  16%   (写入 payload 数据段)
+      [构造单 EXE]  17%   (写入 payload 数据段)
+      [构造单 EXE]  18%   (写入 payload 数据段)
+      [构造单 EXE]  19%   (写入 payload 数据段)
+      [构造单 EXE]  20%   (写入 payload 数据段)
+      [构造单 EXE]  21%   (写入 payload 数据段)
+      [构造单 EXE]  22%   (写入 payload 数据段)
+      [构造单 EXE]  23%   (写入 payload 数据段)
+      [构造单 EXE]  24%   (写入 payload 数据段)
+      [构造单 EXE]  25%   (写入 payload 数据段)
+      [构造单 EXE]  26%   (写入 payload 数据段)
+      [构造单 EXE]  27%   (写入 payload 数据段)
+      [构造单 EXE]  28%   (写入 payload 数据段)
+      [构造单 EXE]  29%   (写入 payload 数据段)
+      [构造单 EXE]  30%   (写入 payload 数据段)
+      [构造单 EXE]  31%   (写入 payload 数据段)
+      [构造单 EXE]  32%   (写入 payload 数据段)
+      [构造单 EXE]  33%   (写入 payload 数据段)
+      [构造单 EXE]  34%   (写入 payload 数据段)
+      [构造单 EXE]  35%   (写入 payload 数据段)
+      [构造单 EXE]  36%   (写入 payload 数据段)
+      [构造单 EXE]  37%   (写入 payload 数据段)
+      [构造单 EXE]  38%   (写入 payload 数据段)
+      [构造单 EXE]  39%   (写入 payload 数据段)
+      [构造单 EXE]  40%   (写入 payload 数据段)
+      [构造单 EXE]  41%   (写入 payload 数据段)
+      [构造单 EXE]  42%   (写入 payload 数据段)
+      [构造单 EXE]  43%   (写入 payload 数据段)
+      [构造单 EXE]  44%   (写入 payload 数据段)
+      [构造单 EXE]  45%   (写入 payload 数据段)
+      [构造单 EXE]  46%   (写入 payload 数据段)
+      [构造单 EXE]  47%   (写入 payload 数据段)
+      [构造单 EXE]  48%   (写入 payload 数据段)
+      [构造单 EXE]  49%   (写入 payload 数据段)
+      [构造单 EXE]  50%   (写入 payload 数据段)
+      [构造单 EXE]  51%   (写入 payload 数据段)
+      [构造单 EXE]  52%   (写入 payload 数据段)
+      [构造单 EXE]  53%   (写入 payload 数据段)
+      [构造单 EXE]  54%   (写入 payload 数据段)
+      [构造单 EXE]  55%   (写入 payload 数据段)
+      [构造单 EXE]  56%   (写入 payload 数据段)
+      [构造单 EXE]  57%   (写入 payload 数据段)
+      [构造单 EXE]  58%   (写入 payload 数据段)
+      [构造单 EXE]  59%   (写入 payload 数据段)
+      [构造单 EXE]  60%   (写入 payload 数据段)
+      [构造单 EXE]  61%   (写入 payload 数据段)
+      [构造单 EXE]  62%   (写入 payload 数据段)
+      [构造单 EXE]  63%   (写入 payload 数据段)
+      [构造单 EXE]  64%   (写入 payload 数据段)
+      [构造单 EXE]  65%   (写入 payload 数据段)
+      [构造单 EXE]  66%   (写入 payload 数据段)
+      [构造单 EXE]  67%   (写入 payload 数据段)
+      [构造单 EXE]  68%   (写入 payload 数据段)
+      [构造单 EXE]  69%   (写入 payload 数据段)
+      [构造单 EXE]  70%   (写入 payload 数据段)
+      [构造单 EXE]  71%   (写入 payload 数据段)
+      [构造单 EXE]  72%   (写入 payload 数据段)
+      [构造单 EXE]  73%   (写入 payload 数据段)
+      [构造单 EXE]  74%   (写入 payload 数据段)
+      [构造单 EXE]  75%   (写入 payload 数据段)
+      [构造单 EXE]  76%   (写入 payload 数据段)
+      [构造单 EXE]  77%   (写入 payload 数据段)
+      [构造单 EXE]  78%   (写入 payload 数据段)
+      [构造单 EXE]  79%   (写入 payload 数据段)
+      [构造单 EXE]  80%   (写入 payload 数据段)
+      [构造单 EXE]  81%   (写入 payload 数据段)
+      [构造单 EXE]  82%   (写入 payload 数据段)
+      [构造单 EXE]  83%   (写入 payload 数据段)
+      [构造单 EXE]  84%   (写入 payload 数据段)
+      [构造单 EXE]  85%   (写入 payload 数据段)
+      [构造单 EXE]  86%   (写入 payload 数据段)
+      [构造单 EXE]  87%   (写入 payload 数据段)
+      [构造单 EXE]  88%   (写入 payload 数据段)
+      [构造单 EXE]  89%   (写入 payload 数据段)
+      [构造单 EXE]  90%   (写入 payload 数据段)
+      [构造单 EXE]  92%   (写索引)
+      [构造单 EXE]  98%   (写 FOOTER 签名)
+      [构造单 EXE] 100%   (写 FOOTER 签名)
+      [构造单 EXE] 完成 → KARLS LIGHT ACCESS Setup.exe   (3.02 GB / 3,238,656,749 字节)
+      [构造单 EXE] 尾部签名验证：PASS (magic=KLAP)
+
+      [产物落盘]
+        单 EXE 安装包：D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\installer\release\KARLS LIGHT ACCESS Setup.exe
+        大小          : 3.02 GB  (3,238,656,749 字节)
+
+
+═══════════════════════════════════════════════════
+[阶段 4/4] Setup 双自测（目录版 + 单 EXE 版）
+═══════════════════════════════════════════════════
+
+  4.1 目录版 Setup.exe --selftest
+        [OK]  主题资源字典
+        [OK]  法律资源
+        [OK]  安装窗口（Welcome→Legal→Dir→Progress→Done 逐页构造）
+        [OK]  payload 目录发现性（exe 同目录下 payload\KarlsLightAccess.exe）
+        [OK]  备份引擎 wimlib（payload\bin\wimlib-imagex.exe + libwim-15.dll）
+        [OK]  自解压格式 round-trip（BuildSingleExe → HasEmbeddedBlob → ExtractEmbeddedPayload → 字节一致）
+      安装器自检通过
+
+  4.2 单 EXE 尾部签名（KLAP magic）与索引摘要验证
+      footer[magic]  = 0x4B4C4150 (expect 0x4B4C4150 = "KLAP")
+      footer[blobSz] = 3237957345 bytes (≈3088.0 MB)
+      footer[idxOfs] = 3237942284
+      尾部签名验证：PASS
+      [Payload 嵌入索引摘要]
+      index 条目   : 303
+      payload 总 B : 3237942284 (3.02 GB)
+      最大文件     : image\access.img  (1.50 GB)
+
+      单 EXE 自检：PASS
+
+
+═══════════════════════════════════════════════════
+✓ 全部构建完成
+═══════════════════════════════════════════════════
+  主程序绿色版     app\bin\KarlsLightAccess.exe  (3,841,024 B)
+  Setup 目录版     installer\bin\KLA-Setup.exe   (699,392 B)   + payload\image\
+  ⭐ 单 EXE 安装包  installer\release\KARLS LIGHT ACCESS Setup.exe
+                     大小：3.02 GB （3,238,656,749 B）
+
+  用法：把 installer\release\ 里那 1 个 exe 单独拷给用户，双击即可：
+       ① 先弹出「正在准备安装文件」进度条（自解压 payload 到 %TEMP%）
+       ② 释放完成后无缝进入 5 页安装向导（欢迎→协议→路径→进度→完成）
+       ③ 安装完桌面 & 开始菜单创建快捷方式，程序出现在控制面板卸载列表

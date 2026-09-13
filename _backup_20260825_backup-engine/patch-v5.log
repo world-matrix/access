@@ -1,0 +1,32 @@
+﻿v5 patch start (server.py copyout ThreadPool + dd fsync remove + 4KB buf)
+=== 1. ro 挂载取 squashfs ===
+total 588056
+drwxr-xr-x 2 root root      4096 Aug 25 17:38 .
+drwxr-xr-x 5 root root      4096 Aug 25 12:26 ..
+-rw-r--r-- 1 root root 602152960 Aug 25 17:38 filesystem.squashfs
+-rw-r--r-- 1 root root        59 Aug 25 17:38 filesystem.squashfs.md5
+  source squashfs size: 602152960
+=== 2. unsquashfs ===
+
+[======\                                                     ]  1900/18310  10%
+[==================================================/         ] 15600/18310  85%
+[===========================================================-] 18310/18310 100%
+  md5 in img  : 3cb0d95909264457d7ec7bad6cc29d7c
+  md5 expected: 11bdd76e07e4f4358af2549a98a9df81
+=== 3. 替换 server.py ===
+  OK server.py
+=== 4. 语法自检 ===
+  server.py syntax OK
+=== 5. 重压 squashfs (xz -b 1024K -Xbcj x86) ===
+
+[===========================================================\] 16957/16957 100%
+-rw-r--r-- 1 root root 602152960 Aug 25 19:39 /root/img-patch5/filesystem-new.squashfs
+=== 6. rw 挂载写回 access.img ===
+  old size: 602152960, new size: 602152960
+  writeback compare OK
+total 588056
+drwxr-xr-x 2 root root      4096 Aug 25 19:39 .
+drwxr-xr-x 5 root root      4096 Aug 25 12:26 ..
+-rw-r--r-- 1 root root 602152960 Aug 25 19:39 filesystem.squashfs
+-rw-r--r-- 1 root root        59 Aug 25 19:39 filesystem.squashfs.md5
+PATCH_V5_DONE

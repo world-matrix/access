@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>最终用户许可协议 — KARL'S LIGHT Access</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  body { background: #fff; display: block; overflow: auto; }
+  .doc-wrap { max-width: 880px; margin: 0 auto; padding: 30px 28px 96px; color: var(--text); line-height: 1.9; }
+  .doc-wrap h1 { font-size: 26px; font-weight: 300; color: var(--ksl-navy); margin-bottom: 4px; }
+  .doc-wrap h2 { font-size: 17px; font-weight: bold; color: var(--ksl-red); margin: 26px 0 6px; padding-left: 10px; border-left: 4px solid var(--ksl-red); }
+  .doc-wrap h3 { font-size: 15px; font-weight: bold; margin: 18px 0 4px; color: #333; }
+  .doc-wrap p  { font-size: 13.5px; margin-bottom: 8px; }
+  .doc-wrap .pad { padding-left: 18px; }
+  .doc-wrap .meta { color: var(--text-soft); font-size: 13px; margin-bottom: 24px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+  .doc-wrap b { font-weight: bold; }
+  .doc-wrap .backbar {
+    position: sticky; top: 0; z-index: 10;
+    background: rgba(255,255,255,.92); border-bottom: 1px solid var(--line-soft);
+    padding: 10px 0 14px; margin: -30px 0 20px;
+  }
+  .doc-wrap .backbtn {
+    display: inline-flex; align-items: center; gap: 6px;
+    font: inherit; font-size: 12px;
+    padding: 6px 12px; border: 1px solid var(--line); border-radius: 2px;
+    background: #fff; color: var(--ksl-navy); cursor: pointer;
+  }
+  .doc-wrap .backbtn:hover { border-color: var(--ksl-red); color: var(--ksl-red); }
+  .doc-wrap footer { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 14px; font-size: 12px; color: var(--text-soft); }
+</style>
+</head>
+<body>
+<div class="doc-wrap">
+  <div class="backbar"><button class="backbtn" onclick="history.length>1?history.back():location.href='index.html'">← 返回</button></div>
+  <div id="docBody">正在加载…</div>
+  <footer>© KARL'S LIGHT CO., LTD. All Rights Reserved. · Designed by KARL'S LIGHT in Guiyang</footer>
+</div>
+<script>
+(function(){
+  const src = document.title.indexOf('隐私') >= 0 ? 'privacy-zh.md' : 'eula-zh.md';
+  fetch(src).then(r => r.ok ? r.text() : Promise.reject()).then(md => {
+    const lines = md.replace(/\r\n?/g, '\n').split('\n');
+    const out = [];
+    let metaHtml = '';
+    for (let i = 0; i < lines.length; i++) {
+      let line = lines[i].replace(/\s+$/, '');
+      if (!line) { out.push(''); continue; }
+      if (line.startsWith('---')) continue;
+      if (line.startsWith('|')) { while (i < lines.length && lines[i].startsWith('|')) i++; i--; continue; }
+      let cls = '';
+      if (line.startsWith('# ')) { out.push(`<h1>${escape_(line.slice(2).trim())}</h1>`); continue; }
+      if (line.startsWith('## ')){ out.push(`<h2>${escape_(line.slice(3).trim())}</h2>`); continue; }
+      if (line.startsWith('### ')){out.push(`<h3>${escape_(line.slice(4).trim())}</h3>`); continue; }
+      if (/^\s*\d+\.\s/.test(line))  cls = 'pad';
+      if (/^\s*（\d+）/.test(line))   cls = 'pad';
+      if (line.startsWith('· ') || line.startsWith('- ')) cls = 'pad';
+      if (line.startsWith('**') && line.endsWith('**')) {
+        line = line.slice(2, -2).trim();
+        out.push(`<p class="${cls}"><b>${escape_(line)}</b></p>`);
+        continue;
+      }
+      // 在 H1 之后的第一对 **版本号 / 生效日期** 抽到 meta 栏更好看
+      if (line.indexOf('版本号：') >= 0 || line.indexOf('生效日期：') >= 0) {
+        metaHtml += (metaHtml ? '　·　' : '') + escape_(line);
+        continue;
+      }
+      out.push(`<p class="${cls}">${escape_(line)}</p>`);
+    }
+    const meta = metaHtml ? `<div class="meta">${metaHtml}</div>` : '';
+    document.getElementById('docBody').innerHTML = meta + out.join('\n');
+  }).catch(() => {
+    document.getElementById('docBody').innerHTML = '<p style="color:var(--err)">文档加载失败。请回到「关于」在模态窗口中查看。</p>';
+  });
+  function escape_(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+})();
+</script>
+</body>
+</html>

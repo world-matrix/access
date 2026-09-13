@@ -1,0 +1,28 @@
+# 固件包。见 docs/risks.md R7——救援环境上不了网等于半残。
+#
+# 【1 GB 预算下的取舍】
+# 原来这里装 firmware-linux-nonfree + firmware-misc-nonfree 两个大包，
+# 合计约 250 MB，其中绝大部分是 GPU 固件（firmware-amd-graphics 一家就
+# 150 MB）。救援环境不需要 3D 加速，显示走 EFI framebuffer / modesetting
+# 就够，所以整块砍掉。
+#
+# 网卡固件一个不能少——这是用户明确要求的「自动装网卡驱动」。全部留下
+# 约 90 MB 未压缩、squashfs 后约 55 MB，在预算内。
+
+# ===== 无线网卡（笔记本的命脉，全留）=====
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
+firmware-brcm80211
+firmware-mediatek
+
+# ===== 自由固件（体积小，兼容性收益大）=====
+firmware-linux-free
+
+# 有线网卡多数在内核树内无需额外固件；
+# 少数 Realtek 千兆的 rtl_nic/*.fw 已包含在 firmware-realtek 里。
+#
+# 已知代价：AMD/NVIDIA 独显机器上没有 GPU 固件，图形回落到
+# EFI framebuffer。救援 UI 在 1024x768~1080p 下软件渲染可接受。
+# 若将来要覆盖这类机器，做一个 "full" 构建变体加回
+# firmware-amd-graphics / firmware-nvidia-graphics 即可。

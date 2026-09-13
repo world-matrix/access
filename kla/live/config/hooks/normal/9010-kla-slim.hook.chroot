@@ -1,0 +1,97 @@
+#!/bin/sh
+# 瘦身：目标是 squashfs ≤ 550 MB，好让 KLA_RESCUE 分区能压到 1 GB。
+#
+# 预算来源见 docs/architecture.md「体积预算」。这里每一条删除都标了
+# 大致收益，方便超预算时按收益排序继续砍。
+set -e
+
+echo "[kla-slim] 瘦身开始，当前 / 占用：$(du -sh / 2>/dev/null | cut -f1)"
+
+# ---------------------------------------------------------------
+# 1. 文档、手册、示例          约 -80 MB
+# ---------------------------------------------------------------
+rm -rf /usr/share/doc/* /usr/share/man/* /usr/share/info/* /usr/share/lintian
+rm -rf /usr/share/doc-base /usr/share/gtk-doc /usr/share/help
+rm -rf /usr/share/backgrounds /usr/share/wallpapers
+
+# ---------------------------------------------------------------
+# 2. 只保留英文和中文 locale     约 -60 MB
+# ---------------------------------------------------------------
+find /usr/share/locale -mindepth 1 -maxdepth 1 -type d \
+     ! -name 'en*' ! -name 'zh_CN*' ! -name 'zh*' -exec rm -rf {} + 2>/dev/null || true
+
+# ---------------------------------------------------------------
+# 3. Chromium 语言包            约 -35 MB
+#    Chromium 自带上百个 .pak 语言文件，只留英文和简中。
+#    路径在不同版本间变过，这里用 find 兜住。
+# ---------------------------------------------------------------
+for d in /usr/lib/chromium/locales /usr/share/chromium/locales; do
+    [ -d "$d" ] || continue
+    find "$d" -name '*.pak' \
+         ! -name 'en-US.pak' ! -name 'zh-CN.pak' -delete 2>/dev/null || true
+done
+
+# ---------------------------------------------------------------
+# 4. 内核模块                    约 -90 MB
+#    只删确定用不到的整棵子树。存储(scsi/ata/nvme/usb)、网络
+#    (net/wireless/ethernet)、文件系统主力一律不动——删错了就是
+#    进了救援环境看不到硬盘或上不了网，属于致命故障。
+# ---------------------------------------------------------------
+for kdir in /lib/modules/*/kernel; do
+    [ -d "$kdir" ] || continue
+    rm -rf "$kdir/sound"                    # 救援环境不需要声音     ~25 MB
+    rm -rf "$kdir/drivers/media"            # 电视卡/摄像头          ~35 MB
+    rm -rf "$kdir/drivers/infiniband"       # 数据中心互联           ~15 MB
+    rm -rf "$kdir/drivers/isdn"             # 上世纪的拨号
+    rm -rf "$kdir/drivers/staging"          # 实验性驱动
+    rm -rf "$kdir/drivers/net/hamradio"     # 业余无线电
+    rm -rf "$kdir/drivers/atm"              # ATM 网络
+    # 独显驱动：GPU 固件已在固件列表里砍掉，模块留着也加载不起来，
+    # 一并删掉保持一致。Intel 核显(i915)保留——目标机器就是核显。
+    rm -rf "$kdir/drivers/gpu/drm/amd"
+    rm -rf "$kdir/drivers/gpu/drm/nouveau"
+    rm -rf "$kdir/drivers/gpu/drm/radeon"
+    # 集群文件系统，单机救援用不到（xfs/btrfs/ext4/ntfs 全部保留）
+    rm -rf "$kdir/fs/ocfs2" "$kdir/fs/gfs2"
+done
+
+# 删完必须重建依赖表，否则 modprobe 会去找已经不存在的 .ko
+for kver in $(ls /lib/modules 2>/dev/null); do
+    depmod -a "$kver" 2>/dev/null || true
+done
+
+# ---------------------------------------------------------------
+# 5. 残留固件                    约 -10 MB
+#    大头（firmware-linux-nonfree / firmware-misc-nonfree）已经在
+#    包列表里就没装，这里清的是被其他包顺带拖进来的。
+# ---------------------------------------------------------------
+rm -rf /lib/firmware/amdgpu /lib/firmware/radeon /lib/firmware/nvidia
+rm -rf /lib/firmware/qcom /lib/firmware/qca /lib/firmware/ti-connectivity
+rm -rf /lib/firmware/dpaa2 /lib/firmware/mellanox /lib/firmware/bnx2x
+rm -rf /lib/firmware/liquidio /lib/firmware/netronome /lib/firmware/cxgb4
+rm -rf /lib/firmware/dvb* /lib/firmware/av7110 /lib/firmware/cpia2
+
+# ---------------------------------------------------------------
+# 6. 零碎                        约 -15 MB
+# ---------------------------------------------------------------
+find / -xdev -name '__pycache__' -type d -prune -exec rm -rf {} + 2>/dev/null || true
+find / -xdev -name '*.pyc' -delete 2>/dev/null || true
+find / -xdev -name '*.a' -delete 2>/dev/null || true
+rm -rf /usr/include /usr/share/pkgconfig /usr/lib/*/pkgconfig
+
+# APT 缓存放最后清，前面的操作不再需要 apt
+apt-get clean
+rm -rf /var/lib/apt/lists/* /var/cache/* /var/log/*
+
+# ---------------------------------------------------------------
+# 分项报告：超预算时照着这张表决定下一刀砍哪
+# ---------------------------------------------------------------
+echo "[kla-slim] ===== 瘦身后分项占用（未压缩）====="
+for p in /usr/lib /usr/share /lib/modules /lib/firmware /usr/bin /opt /var; do
+    [ -e "$p" ] && echo "  $(du -sh "$p" 2>/dev/null | cut -f1)\t$p"
+done
+echo "[kla-slim] ===== 最大的 15 个子目录 ====="
+du -x -d 3 /usr /lib 2>/dev/null | sort -rn | head -15 | \
+    awk '{printf "  %8.1f MB  %s\n", $1/1024, $2}'
+echo "[kla-slim] 总计（未压缩）：$(du -sh / 2>/dev/null | cut -f1)"
+echo "[kla-slim] 参考：squashfs 后通常是这个数的 32%~38%"

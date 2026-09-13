@@ -1,0 +1,20 @@
+#!/bin/sh
+set -e
+# 允许 root 跑 X（救援环境本来就是 root）
+if [ -f /etc/X11/Xwrapper.config ]; then
+    sed -i 's/^allowed_users=.*/allowed_users=anybody/' /etc/X11/Xwrapper.config
+else
+    printf 'allowed_users=anybody\nneeds_root_rights=yes\n' > /etc/X11/Xwrapper.config
+fi
+
+chmod +x /usr/local/bin/kla-session
+
+# includes.chroot 里的文件是从 DrvFs（/mnt/d）同步过来的，DrvFs 把所有文件
+# 都报成 0777，于是 unit 文件带着执行位进了 chroot，systemd 会警告
+# "marked executable"。权限在这里归位，别指望源端保持。
+chmod 644 /etc/systemd/system/kla-ui.service
+chmod 644 /opt/kla/server.py
+chmod -R a-x,a+rX /opt/kla/www
+
+systemctl enable kla-ui.service
+systemctl set-default multi-user.target

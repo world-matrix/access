@@ -1,0 +1,832 @@
+/* ═══════════════════════════════════════════════════════════════
+   KARL'S LIGHT ACCESS —— 前端逻辑
+
+   分类结构忠实复刻 Access IBM 预桌面区域的四大类：
+     Rescue and Recovery / Configure / Communicate / Troubleshoot
+   点进去的交互也照原版：顶部步骤条一路「下一步」到底，
+   动作按钮永远钉在同一个位置，不让用户在页面里找。
+
+   阶段 2：文件救援已接通后端（/api/browse + copyout 作业）。
+   其余功能仍是占位，标签上如实标注，不做"看起来能点"的假象。
+   ═══════════════════════════════════════════════════════════════ */
+
+const CATEGORIES = [
+  {
+    id: 'rescue',
+    name: '救援与恢复',
+    icon: 'rescue',
+    desc: '系统无法启动或数据受损时，从这里恢复。',
+    tasks: [
+      {
+        id: 'factory', icon: 'factory', title: '恢复出厂',
+        desc: '用出厂母盘覆盖系统分区，回到部署时的干净状态',
+        needs: ['wimlib'],
+        help: {
+          title: '恢复出厂',
+          body: '把系统分区完整覆盖为部署 KLA 时捕获的出厂母盘。所有在那之后安装的程序、修改的设置都会消失。',
+          warn: '系统分区上的数据将被全部覆盖。执行前请先用「文件救援」把要保留的数据导出。'
+        }
+      },
+      {
+        id: 'restore', icon: 'clock', title: '从备份还原',
+        desc: '在备份时间线上选择一个还原点回滚系统',
+        needs: ['wimlib'],
+        help: {
+          title: '从备份还原',
+          body: '列出 Windows 侧 KLA 主程序创建的所有还原点，按时间线选择其一还原。增量还原会自动按链依次应用。',
+          note: '还原完成后会自动重建引导。若还原后仍无法启动，请回到本菜单执行「修复启动」。'
+        }
+      },
+      {
+        id: 'files', icon: 'files', title: '文件救援',
+        desc: '把数据导出到 U 盘、移动硬盘或另一个分区',
+        needs: ['ntfs3g'],
+        ready: true,
+        open: () => openRescueFiles(),
+        help: {
+          title: '文件救援',
+          body: '不修改任何原有数据，只读挂载源分区，浏览并复制文件到别的卷。系统进不去但硬盘还好的情况下，优先用这个。',
+          note: '源分区全程只读挂载，救援过程不会对它写入任何东西。'
+        }
+      }
+    ]
+  },
+  {
+    id: 'configure',
+    name: '配置',
+    icon: 'gear',
+    desc: '调整磁盘、账户与启动设置。',
+    tasks: [
+      {
+        id: 'partition', icon: 'disk', title: '分区管理',
+        desc: '查看与调整磁盘分区结构（GParted）',
+        needs: ['gparted'],
+        help: {
+          title: '分区管理',
+          body: '图形化的分区工具，可以创建、删除、调整、格式化分区。',
+          warn: '误操作会导致数据永久丢失。除非明确知道在做什么，否则不要动系统分区和救援分区。'
+        }
+      },
+      {
+        id: 'winacct', icon: 'key', title: 'Windows 账户',
+        desc: '重置本地账户密码、解锁被禁用的账户',
+        needs: ['chntpw'],
+        help: {
+          title: 'Windows 账户',
+          body: '直接编辑 Windows 的 SAM 数据库，清空本地账户密码或启用被禁用的账户。',
+          note: '只对本地账户有效。Microsoft 在线账户的密码需要在 account.microsoft.com 重置。'
+        }
+      },
+      {
+        id: 'bootfix', icon: 'wrench', title: '修复启动',
+        desc: '重建 Windows 引导记录与启动项',
+        needs: [],
+        help: {
+          title: '修复启动',
+          body: '重新生成 ESP 上的引导文件和 BCD 启动配置，解决「找不到操作系统」「0xc000000f」这类启动失败。',
+          note: '此操作不会动你的数据，只重写引导区，可以放心尝试。'
+        }
+      }
+    ]
+  },
+  {
+    id: 'communicate',
+    name: '通信',
+    icon: 'globe',
+    desc: '连接网络，访问互联网与网络共享。',
+    tasks: [
+      {
+        id: 'network', icon: 'wifi', title: '网络设置',
+        desc: '连接有线或无线网络',
+        needs: [],
+        help: {
+          title: '网络设置',
+          body: '扫描并连接 WiFi，或配置有线网络。救援环境已内置常见网卡的固件。',
+          note: '如果这里看不到任何网卡，说明本机网卡的驱动未包含在救援系统中。'
+        }
+      },
+      {
+        id: 'browser', icon: 'globe', title: '打开浏览器',
+        desc: '上网查找解决方案或下载文件',
+        needs: ['chromium'],
+        help: {
+          title: '打开浏览器',
+          body: '打开一个独立的浏览器窗口。系统坏了正好可以用它查报错信息、下载驱动或工具。',
+          note: '下载的文件会存到内存盘，重启即消失。需要保留请存到 U 盘。'
+        }
+      },
+      {
+        id: 'share', icon: 'share', title: '网络位置',
+        desc: '挂载 SMB 共享，用于导出备份或读取镜像',
+        needs: [],
+        help: {
+          title: '网络位置',
+          body: '挂载局域网内的 SMB/CIFS 共享目录。可以把救援出来的文件直接写到 NAS，也可以从网络位置读取备份镜像做还原。'
+        }
+      }
+    ]
+  },
+  {
+    id: 'troubleshoot',
+    name: '诊断',
+    icon: 'stethoscope',
+    desc: '判断是软件问题还是硬件真的坏了。',
+    tasks: [
+      {
+        id: 'hwdiag', icon: 'stethoscope', title: '硬件诊断',
+        desc: '硬盘 SMART、温度、CPU 与内存压力测试',
+        needs: ['smartctl'],
+        help: {
+          title: '硬件诊断',
+          body: '读取硬盘 SMART 健康数据、传感器温度，并可运行 CPU/内存压力测试。系统频繁崩溃时先跑这个，排除硬件故障。',
+          note: 'SMART 出现「重新分配扇区计数」或「待定扇区」非零，说明硬盘正在坏，尽快备份换盘。'
+        }
+      },
+      {
+        id: 'memtest', icon: 'chip', title: '内存测试',
+        desc: '完整的内存颗粒检测（MemTest86+）',
+        needs: [],
+        help: {
+          title: '内存测试',
+          body: '重启进入独立的 MemTest86+ 环境做完整内存检测。这是判断随机蓝屏、程序莫名崩溃最有效的手段。',
+          note: '完整跑一遍需要数小时。建议睡前开始，第二天看结果。按 Esc 可随时中止并重启。'
+        }
+      },
+      {
+        id: 'datarec', icon: 'search', title: '数据恢复',
+        desc: '找回误删的分区与文件（TestDisk / PhotoRec）',
+        needs: ['testdisk'],
+        help: {
+          title: '数据恢复',
+          body: 'TestDisk 恢复误删的分区表，PhotoRec 按文件特征扫描恢复已删除文件。',
+          warn: '发现数据丢失后应立即停止向该磁盘写入任何内容，否则会覆盖待恢复的数据。'
+        }
+      }
+    ]
+  }
+];
+
+// ── 工具 ────────────────────────────────────────────────────────
+const $ = sel => document.querySelector(sel);
+
+const fmtSize = b => {
+  if (!b) return '—';
+  const u = ['B', 'KB', 'MB', 'GB', 'TB'];
+  let i = 0, n = b;
+  while (n >= 1024 && i < u.length - 1) { n /= 1024; i++; }
+  return n.toFixed(n < 10 && i > 0 ? 1 : 0) + ' ' + u[i];
+};
+
+const fmtTime = s => {
+  if (s == null) return '—';
+  const m = Math.floor(s / 60), r = Math.floor(s % 60);
+  return m > 0 ? `${m} 分 ${r} 秒` : `${r} 秒`;
+};
+
+const icon = (name, cls) =>
+  `<svg class="${cls}"><use href="assets/icons.svg#${name}"></use></svg>`;
+
+const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g,
+  c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+const get = async p => {
+  try { const r = await fetch(p); return r.ok ? await r.json() : null; }
+  catch { return null; }
+};
+
+// GET 里那个 null 会把"后端 500 了"和"后端说 ok:false"混成一件事。
+// 浏览和作业提交都需要区分这两者，所以单开一个带状态码的。
+const call = async (p, method, body) => {
+  try {
+    const r = await fetch(p, {
+      method: method || 'GET',
+      headers: { 'Content-Type': 'application/json' },
+      body: body === undefined ? null : JSON.stringify(body)
+    });
+    let data = {};
+    try { data = await r.json(); } catch { /* 空响应体 */ }
+    return { status: r.status, data };
+  } catch {
+    return { status: 0, data: { reason: '无法连接到后端服务' } };
+  }
+};
+
+// ── 路径 ────────────────────────────────────────────────────────
+// 前端只处理卷内的相对路径（永远以 / 开头），挂载点由后端拼。
+const joinPath = (dir, name) =>
+  (dir === '/' || !dir) ? '/' + name : dir.replace(/\/+$/, '') + '/' + name;
+
+const parentPath = p => {
+  if (!p || p === '/') return '/';
+  const i = p.replace(/\/+$/, '').lastIndexOf('/');
+  return i <= 0 ? '/' : p.slice(0, i);
+};
+
+// 某个路径是否已被某个选中的祖先目录覆盖。
+// parentPath('/') 恒为 '/'，所以必须先判 picked 再判是否到根，否则死循环。
+function coveredByAncestor(p, picked) {
+  let cur = parentPath(p);
+  for (;;) {
+    if (picked.has(cur)) return cur;
+    if (cur === '/') return null;
+    cur = parentPath(cur);
+  }
+}
+
+// NTFS 不接受这几个字符；开头的点在 Linux 下是隐藏文件，用户多半不是这个意思
+const cleanSubdir = s =>
+  (s || '').replace(/[\/\\:*?"<>|]/g, '').replace(/^\.+/, '').trim();
+
+// ── 状态 ────────────────────────────────────────────────────────
+const state = { tools: {}, disks: [], current: 'rescue', wiz: null };
+
+const ESP_GUID = 'c12a7328-f81f-11d2-ba4b-00a0c93ec93b';
+
+// 把「磁盘 → 分区」摊平，同时保留分区属于哪块盘——
+// 「别把数据救到同一块正在坏的盘上」这条提示需要这个信息。
+function allVolumes() {
+  const out = [];
+  state.disks.forEach(d => (d.partitions || []).forEach(p => {
+    out.push(Object.assign({}, p, { diskName: d.name, diskModel: d.model }));
+  }));
+  return out;
+}
+
+const volLabel = v => v.label || (v.fstype ? v.fstype.toUpperCase() + ' 卷' : '未格式化');
+
+// ── 渲染：主页 ──────────────────────────────────────────────────
+function missingDeps(task) {
+  return (task.needs || []).filter(n => !state.tools[n]);
+}
+
+function renderNav() {
+  $('#nav').innerHTML = CATEGORIES.map(c => {
+    const avail = c.tasks.filter(t => missingDeps(t).length === 0).length;
+    return `<li class="nav-item ${c.id === state.current ? 'active' : ''}" data-cat="${c.id}">
+      ${icon(c.icon, 'ico24')}
+      <span>${esc(c.name)}</span>
+      <span class="count">${avail}/${c.tasks.length}</span>
+    </li>`;
+  }).join('');
+
+  $('#nav').querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', () => {
+      if (!leaveWizard()) return;
+      state.current = el.dataset.cat;
+      renderHome();
+    });
+  });
+}
+
+function renderHome() {
+  state.wiz = null;
+  $('#backBtn').hidden = true;
+
+  const cat = CATEGORIES.find(c => c.id === state.current);
+  $('#catTitle').textContent = cat.name;
+  $('#catDesc').textContent = cat.desc;
+
+  $('#contentBody').innerHTML = '<ul class="tasks" id="tasks"></ul>';
+  $('#tasks').innerHTML = cat.tasks.map(t => {
+    const missing = missingDeps(t);
+    const off = missing.length > 0;
+    let tag, cls = '';
+    if (off) { tag = '缺少 ' + missing.join(', '); }
+    else if (t.ready) { tag = '可用'; cls = 'ready'; }
+    else { tag = '尚未实现'; }
+    return `<li class="task ${off ? 'disabled' : ''}" data-task="${t.id}">
+      ${icon(t.icon, 'ico32')}
+      <div class="task-text">
+        <div class="task-title">${esc(t.title)}</div>
+        <div class="task-desc">${esc(t.desc)}</div>
+      </div>
+      <span class="task-tag ${cls}">${esc(tag)}</span>
+    </li>`;
+  }).join('');
+
+  $('#tasks').querySelectorAll('.task').forEach(el => {
+    const task = cat.tasks.find(t => t.id === el.dataset.task);
+    el.addEventListener('mouseenter', () => showHelp(task));
+    el.addEventListener('click', () => {
+      if (el.classList.contains('disabled')) return;
+      if (task.open) { task.open(); return; }
+      showHelp(task, '这个功能还没接上实现，点了不会有任何动作。');
+    });
+  });
+
+  renderNav();
+}
+
+function showHelp(task, extra) {
+  const h = task.help || {};
+  $('#helpBody').innerHTML = `
+    <span class="ht">${esc(h.title || task.title)}</span>
+    ${esc(h.body || task.desc)}
+    ${h.note ? `<div class="hnote">${esc(h.note)}</div>` : ''}
+    ${h.warn ? `<div class="hwarn">${esc(h.warn)}</div>` : ''}
+    ${extra ? `<div class="hnote">${esc(extra)}</div>` : ''}`;
+}
+
+function showHelpRaw(title, body, kind) {
+  $('#helpBody').innerHTML =
+    `<span class="ht">${esc(title)}</span><div class="${kind || 'hnote'}">${esc(body)}</div>`;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   文件救援向导
+   ═══════════════════════════════════════════════════════════════ */
+
+const WIZ_STEPS = ['选择源分区', '挑选文件', '选择保存位置', '拷贝'];
+
+function openRescueFiles() {
+  state.wiz = {
+    step: 1,
+    srcDev: null,
+    cwd: '/',
+    entries: [],
+    browseErr: null,
+    loading: false,
+    picked: new Set(),
+    dstDev: null,
+    subdir: 'KLA-救援文件',
+    jobId: null,
+    job: null,
+    poll: null,
+    submitErr: null
+  };
+  $('#backBtn').hidden = false;
+  renderWizard();
+}
+
+// 离开向导前的守门。作业还在跑的时候不能一走了之——
+// 后端是全局单作业，人走了作业还占着，回来会看到"已有作业在运行"却不知道是什么。
+function leaveWizard() {
+  const w = state.wiz;
+  if (!w) return true;
+  if (w.job && ['pending', 'scanning', 'running'].includes(w.job.state)) {
+    showHelpRaw('拷贝正在进行', '请先等它结束，或按「取消拷贝」中止后再离开。', 'hwarn');
+    return false;
+  }
+  stopPolling();
+  return true;
+}
+
+function stopPolling() {
+  if (state.wiz && state.wiz.poll) {
+    clearInterval(state.wiz.poll);
+    state.wiz.poll = null;
+  }
+}
+
+function renderWizard() {
+  const w = state.wiz;
+  $('#catTitle').textContent = '文件救援';
+  $('#catDesc').textContent = '源分区全程只读挂载，不会对它写入任何东西。';
+
+  const steps = WIZ_STEPS.map((s, i) => {
+    const n = i + 1;
+    const cls = n === w.step ? 'active' : (n < w.step ? 'done' : '');
+    return `<div class="step ${cls}"><span class="num">${n < w.step ? '✓' : n}</span>${esc(s)}</div>`;
+  }).join('');
+
+  $('#contentBody').innerHTML =
+    `<div class="wizard">
+       <div class="steps">${steps}</div>
+       <div class="wiz-body" id="wizBody"></div>
+       <div class="wiz-foot" id="wizFoot"></div>
+     </div>`;
+
+  ({ 1: stepSource, 2: stepBrowse, 3: stepDest, 4: stepRun })[w.step]();
+}
+
+function foot(html) { $('#wizFoot').innerHTML = html; }
+
+function goStep(n) {
+  state.wiz.step = n;
+  state.wiz.submitErr = null;
+  renderWizard();
+}
+
+// ── 步骤 1：选源分区 ────────────────────────────────────────────
+function stepSource() {
+  const w = state.wiz;
+  const vols = allVolumes();
+
+  if (!vols.length) {
+    $('#wizBody').innerHTML =
+      `<div class="errbox">没有检测到任何分区。如果硬盘确实装着，说明救援系统缺少这块硬盘控制器的驱动。</div>`;
+    foot(`<div class="spacer"></div><button class="btn" id="wCancel">返回</button>`);
+    $('#wCancel').onclick = renderHome;
+    return;
+  }
+
+  $('#wizBody').innerHTML =
+    `<div class="wiz-hint">选择要从中取出文件的分区。通常是装着 Windows 的那个 NTFS 卷。</div>
+     ${renderVolList(vols, v => {
+       if (!v.fstype) return { disabled: true, tag: '未格式化', tagKind: 'err' };
+       if (v.isKlaRescue) return { tag: '救援分区', tagKind: 'warn' };
+       if (v.parttype === ESP_GUID) return { tag: 'EFI 系统分区', tagKind: 'warn' };
+       if (v.isWindows) return { tag: 'Windows 数据' };
+       return {};
+     }, w.srcDev, 'src')}`;
+
+  bindVolPick('src', name => { w.srcDev = name; w.picked.clear(); w.cwd = '/'; stepSource(); });
+
+  foot(`<div class="summary">${w.srcDev ? '已选：' + esc(w.srcDev) : '尚未选择'}</div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="wNext" ${w.srcDev ? '' : 'disabled'}>下一步</button>`);
+  const nx = $('#wNext');
+  if (nx) nx.onclick = () => { goStep(2); loadDir('/'); };
+}
+
+function renderVolList(vols, decorate, selected, kind) {
+  // 按物理盘分组：救援时"这两个分区在同一块盘上"是关键信息——
+  // 盘要是正在坏，拷到同一块盘上等于没救。
+  const byDisk = {};
+  vols.forEach(v => { (byDisk[v.diskName] = byDisk[v.diskName] || []).push(v); });
+
+  return '<div class="vol-list">' + Object.keys(byDisk).map(dn => {
+    const head = `<div class="vol-disk">${esc(dn)} · ${esc(byDisk[dn][0].diskModel)}</div>`;
+    const rows = byDisk[dn].map(v => {
+      const d = decorate(v) || {};
+      const on = selected === v.name;
+      return `<div class="vol ${d.disabled ? 'disabled' : ''} ${on ? 'sel' : ''}"
+                   data-kind="${kind}" data-vol="${esc(v.name)}"
+                   ${d.disabled ? 'data-off="1"' : ''}
+                   ${d.reason ? `title="${esc(d.reason)}"` : ''}>
+        ${icon('disk', 'ico32')}
+        <div>
+          <div class="vol-name">${esc(volLabel(v))} <span style="font-weight:normal;opacity:.6">(${esc(v.name)})</span></div>
+          <div class="vol-meta">${esc(v.fstype || '无文件系统')} · ${fmtSize(v.sizeBytes)}${
+            d.reason ? ' · ' + esc(d.reason) : ''}</div>
+        </div>
+        ${d.tag ? `<span class="vol-tag ${d.tagKind || ''}">${esc(d.tag)}</span>` : ''}
+      </div>`;
+    }).join('');
+    return head + rows;
+  }).join('') + '</div>';
+}
+
+function bindVolPick(kind, onPick) {
+  document.querySelectorAll(`.vol[data-kind="${kind}"]`).forEach(el => {
+    if (el.dataset.off) return;
+    el.onclick = () => onPick(el.dataset.vol);
+  });
+}
+
+// ── 步骤 2：浏览 + 多选 ─────────────────────────────────────────
+async function loadDir(path) {
+  const w = state.wiz;
+  w.loading = true; w.browseErr = null;
+  renderBrowse();
+
+  const url = `/api/browse?dev=${encodeURIComponent(w.srcDev)}&path=${encodeURIComponent(path)}`;
+  const { status, data } = await call(url);
+  // 用户可能在请求飞行途中又点了别处，回来的是过期响应，丢掉
+  if (!state.wiz || state.wiz !== w || w.step !== 2) return;
+
+  w.loading = false;
+  if (status === 200 && data.ok) {
+    w.cwd = path;
+    w.entries = data.entries || [];
+  } else {
+    w.browseErr = data.reason || `读取失败（HTTP ${status}）`;
+    w.entries = [];
+  }
+  renderBrowse();
+}
+
+function stepBrowse() { renderBrowse(); }
+
+function renderBrowse() {
+  const w = state.wiz;
+
+  // 面包屑：根那一节显示分区名，比一个光秃秃的 / 好认
+  const segs = w.cwd.split('/').filter(Boolean);
+  let acc = '';
+  const crumbs = [`<span class="crumb" data-go="/">${esc(w.srcDev)}</span>`].concat(
+    segs.map((s, i) => {
+      acc = joinPath(acc || '/', s);
+      const last = i === segs.length - 1;
+      return `<span class="sep">›</span><span class="crumb ${last ? 'cur' : ''}"
+                data-go="${esc(acc)}">${esc(s)}</span>`;
+    })
+  ).join('');
+
+  let body;
+  if (w.loading) {
+    body = `<div class="empty">正在读取…</div>`;
+  } else if (w.browseErr) {
+    body = `<div class="errbox"><b>无法读取这个目录</b><br>${esc(w.browseErr)}</div>`;
+  } else if (!w.entries.length) {
+    body = `<div class="empty">这个目录是空的</div>`;
+  } else {
+    body = w.entries.map(e => {
+      const p = joinPath(w.cwd, e.name);
+      const anc = coveredByAncestor(p, w.picked);
+      const on = w.picked.has(p) || !!anc;
+      return `<div class="frow ${e.isDir ? 'dir' : ''} ${on ? 'picked' : ''}" data-p="${esc(p)}">
+        <input type="checkbox" ${on ? 'checked' : ''} ${anc ? 'disabled' : ''}
+               ${anc ? `title="已随上级目录 ${esc(anc)} 一起选中"` : ''}>
+        ${icon(e.isDir ? 'folder' : 'doc', 'ico16')}
+        <span class="fname" ${e.isDir ? 'data-cd="1"' : ''}>${esc(e.name)}</span>
+        <span class="fsize">${e.isDir ? '' : fmtSize(e.sizeBytes)}</span>
+      </div>`;
+    }).join('');
+  }
+
+  const picked = [...w.picked];
+  const pickedBar = picked.length ? `
+    <div class="picked-bar">
+      <div class="picked-head">已选 <b>${picked.length}</b> 项
+        <span class="clear" id="wClear">全部清除</span></div>
+      <div class="picked-items">${picked.map(p =>
+        `<div class="picked-item"><span class="x" data-un="${esc(p)}">✕</span>
+         <span class="p">${esc(p)}</span></div>`).join('')}</div>
+    </div>` : '';
+
+  $('#wizBody').innerHTML =
+    `<div class="brow">
+       <div class="crumbs">${crumbs}</div>
+       <div class="flist">${body}</div>
+       ${pickedBar}
+     </div>`;
+
+  // 面包屑跳转
+  $('#wizBody').querySelectorAll('.crumb[data-go]').forEach(el => {
+    if (el.classList.contains('cur')) return;
+    el.onclick = () => loadDir(el.dataset.go);
+  });
+  // 双列点击：勾选框管选中，文件夹名管进入。两者互不干扰，
+  // 否则"想勾选却进了目录"是这类界面最常见的挫败点。
+  $('#wizBody').querySelectorAll('.frow').forEach(el => {
+    const p = el.dataset.p;
+    const cb = el.querySelector('input');
+    if (cb && !cb.disabled) cb.onchange = () => { togglePick(p, cb.checked); renderBrowse(); };
+    const nm = el.querySelector('[data-cd]');
+    if (nm) nm.onclick = () => loadDir(p);
+  });
+  $('#wizBody').querySelectorAll('[data-un]').forEach(el => {
+    el.onclick = () => { w.picked.delete(el.dataset.un); renderBrowse(); };
+  });
+  const clr = $('#wClear');
+  if (clr) clr.onclick = () => { w.picked.clear(); renderBrowse(); };
+
+  foot(`<button class="btn" id="wBack">上一步</button>
+        <div class="summary">${picked.length ? `已选 ${picked.length} 项` : '勾选要救出来的文件或文件夹'}</div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="wNext" ${picked.length ? '' : 'disabled'}>下一步</button>`);
+  $('#wBack').onclick = () => goStep(1);
+  const nx = $('#wNext');
+  if (nx) nx.onclick = () => goStep(3);
+}
+
+function togglePick(p, on) {
+  const s = state.wiz.picked;
+  if (!on) { s.delete(p); return; }
+  // 选中一个目录时，把它下面已经单独选中的项去掉。
+  // 留着不会拷错文件，但后端会把同一份数据 walk 两遍，
+  // 进度条的分母因此虚高，用户看到的"总大小"是假的。
+  for (const q of [...s]) {
+    if (q !== p && (q + '/').startsWith(p + '/')) s.delete(q);
+  }
+  s.add(p);
+}
+
+// ── 步骤 3：选目标 ──────────────────────────────────────────────
+function stepDest() {
+  const w = state.wiz;
+  const src = allVolumes().find(v => v.name === w.srcDev) || {};
+  const vols = allVolumes();
+
+  $('#wizBody').innerHTML =
+    `<div class="wiz-hint">选择把文件保存到哪里。建议选一块<b>外接</b>的 U 盘或移动硬盘。</div>
+     ${renderVolList(vols, v => {
+       if (v.name === w.srcDev)   return { disabled: true, tag: '源分区', tagKind: 'err', reason: '不能拷到自己身上' };
+       if (!v.fstype)             return { disabled: true, tag: '未格式化', tagKind: 'err', reason: '没有文件系统，无法写入' };
+       if (v.parttype === ESP_GUID) return { disabled: true, tag: 'EFI 系统分区', tagKind: 'err', reason: '写这里会破坏引导' };
+       if (v.isKlaRescue)         return { disabled: true, tag: '救援分区', tagKind: 'err', reason: '写满会让救援环境本身失效' };
+       // 同一块物理盘不禁止——盘没坏的时候这是完全合理的操作——但必须说清楚
+       if (v.diskName === src.diskName) return { tag: '同一块硬盘', tagKind: 'warn', reason: '源盘若有物理故障，拷到这里等于没救' };
+       return {};
+     }, w.dstDev, 'dst')}
+     <div style="margin-top:18px">
+       <div class="wiz-hint" style="margin-bottom:6px">保存到目标卷的哪个文件夹：</div>
+       <input id="wSub" value="${esc(w.subdir)}" spellcheck="false"
+              style="font:inherit;font-size:13px;padding:7px 10px;width:320px;
+                     border:1px solid var(--line);border-radius:2px">
+       <div class="wiz-hint" style="margin-top:5px">
+         文件夹不存在会自动创建。选中项的目录名本身会保留在里面。</div>
+     </div>`;
+
+  bindVolPick('dst', name => { w.dstDev = name; stepDest(); });
+  $('#wSub').oninput = e => { w.subdir = e.target.value; };
+
+  const ready = !!w.dstDev;
+  foot(`<button class="btn" id="wBack">上一步</button>
+        <div class="summary">${esc(w.srcDev)} → ${w.dstDev ? esc(w.dstDev) : '？'} · ${w.picked.size} 项</div>
+        <div class="spacer"></div>
+        <button class="btn primary" id="wGo" ${ready ? '' : 'disabled'}>开始拷贝</button>`);
+  $('#wBack').onclick = () => goStep(2);
+  const go = $('#wGo');
+  if (go) go.onclick = submitCopy;
+}
+
+// ── 步骤 4：执行 ────────────────────────────────────────────────
+async function submitCopy() {
+  const w = state.wiz;
+  const sub = cleanSubdir(w.subdir) || 'KLA-救援文件';
+  w.subdir = sub;
+  goStep(4);
+
+  const { status, data } = await call('/api/jobs', 'POST', {
+    type: 'copyout',
+    args: {
+      src_dev: w.srcDev,
+      src_paths: [...w.picked],
+      dst_dev: w.dstDev,
+      dst_subdir: sub
+    }
+  });
+
+  if (status !== 200 || !data.ok) {
+    w.submitErr = data.reason || `提交失败（HTTP ${status}）`;
+    renderWizard();
+    return;
+  }
+  w.jobId = data.job.id;
+  w.job = data.job;
+  renderRun();
+  // 500ms：肉眼觉得连续，又不会把一个只有 128 MB 内存的救援环境
+  // 拿去伺候轮询。作业结束立刻停表。
+  w.poll = setInterval(pollJob, 500);
+}
+
+async function pollJob() {
+  const w = state.wiz;
+  if (!w || !w.jobId) { stopPolling(); return; }
+  const { status, data } = await call('/api/jobs/' + encodeURIComponent(w.jobId));
+  if (!state.wiz || state.wiz !== w) return;
+  if (status === 200) {
+    w.job = data;
+    if (['done', 'failed', 'cancelled'].includes(data.state)) stopPolling();
+  }
+  if (w.step === 4) renderRun();
+}
+
+function stepRun() { renderRun(); }
+
+function renderRun() {
+  const w = state.wiz;
+
+  if (w.submitErr) {
+    $('#wizBody').innerHTML = `<div class="errbox"><b>没能开始拷贝</b><br>${esc(w.submitErr)}</div>`;
+    foot(`<button class="btn" id="wBack">上一步</button><div class="spacer"></div>
+          <button class="btn" id="wHome">回到菜单</button>`);
+    $('#wBack').onclick = () => goStep(3);
+    $('#wHome').onclick = renderHome;
+    return;
+  }
+
+  const j = w.job;
+  if (!j) {
+    $('#wizBody').innerHTML = `<div class="empty">正在提交作业…</div>`;
+    foot('');
+    return;
+  }
+
+  const running = ['pending', 'scanning', 'running'].includes(j.state);
+  // 扫描阶段还不知道总量，此时给确定的百分比等于撒谎，用不确定态的滚动条
+  const scanning = j.state === 'scanning' || (running && !j.totalBytes);
+  const pct = j.totalBytes ? Math.min(100, 100 * j.doneBytes / j.totalBytes) : 0;
+
+  let barCls = '';
+  if (scanning) barCls = 'indet';
+  else if (j.state === 'done') barCls = j.errorCount > 0 ? 'err' : 'ok';
+  else if (j.state === 'failed' || j.state === 'cancelled') barCls = 'err';
+
+  const title = {
+    pending: '正在准备…', scanning: '正在统计数据量…', running: '正在拷贝',
+    done: j.errorCount > 0 ? '拷贝结束，但有文件没能读出来' : '拷贝完成',
+    failed: '拷贝失败', cancelled: '已取消'
+  }[j.state] || j.state;
+
+  const errs = (j.errors || []).length ? `
+    <div class="errlist">
+      <div class="eh">${j.errorCount} 个文件没能拷出来${
+        j.errorCount > j.errors.length ? `（只列出前 ${j.errors.length} 个）` : ''}</div>
+      ${j.errors.map(e =>
+        `<div class="er"><div class="ep">${esc(e.path)}</div><div class="em">${esc(e.error)}</div></div>`
+      ).join('')}
+    </div>` : '';
+
+  $('#wizBody').innerHTML = `
+    <div class="prog-wrap">
+      <div class="prog-title">${esc(title)}</div>
+      <div class="prog-cur">${esc(j.current || j.message || '')}</div>
+      <div class="bar ${barCls}"><i style="width:${scanning ? 35 : pct}%"></i></div>
+      <div class="prog-nums">
+        <div>已拷贝<b>${fmtSize(j.doneBytes)}</b>${
+          j.totalBytes ? `<span style="font-size:11px"> / ${fmtSize(j.totalBytes)}</span>` : ''}</div>
+        <div>文件<b>${j.doneFiles || 0}${j.totalFiles ? ' / ' + j.totalFiles : ''}</b></div>
+        <div>用时<b>${fmtTime(j.elapsedSeconds)}</b></div>
+        ${j.errorCount ? `<div>失败<b style="color:var(--ksl-red)">${j.errorCount}</b></div>` : ''}
+      </div>
+      ${(j.state === 'failed') ? `<div class="errbox" style="margin-top:16px">${esc(j.message)}</div>` : ''}
+      ${(j.state === 'done') ? `<div class="wiz-hint" style="margin-top:14px">
+          已保存到目标卷的 <b>${esc(w.subdir)}</b> 文件夹。拔盘前请先点「重启」或「关机」，
+          让系统把缓存真正写进去。</div>` : ''}
+      ${errs}
+    </div>`;
+
+  if (running) {
+    foot(`<div class="summary">${esc(w.srcDev)} → ${esc(w.dstDev)}</div>
+          <div class="spacer"></div>
+          <button class="btn" id="wCancelJob">取消拷贝</button>`);
+    $('#wCancelJob').onclick = async () => {
+      $('#wCancelJob').disabled = true;
+      $('#wCancelJob').textContent = '正在停止…';
+      await call('/api/jobs/' + encodeURIComponent(w.jobId) + '/cancel', 'POST');
+    };
+  } else {
+    foot(`<button class="btn" id="wAgain">再救一批</button>
+          <button class="btn ghost" id="wVerify">浏览目标卷</button>
+          <div class="spacer"></div>
+          <button class="btn primary" id="wHome">完成</button>`);
+    $('#wAgain').onclick = () => {
+      w.picked.clear(); w.job = null; w.jobId = null; w.cwd = '/';
+      goStep(2); loadDir('/');
+    };
+    // 拷完能当场核对，比让用户拔了盘回 Windows 里才发现少东西强得多
+    $('#wVerify').onclick = () => {
+      w.srcDev = w.dstDev; w.picked.clear(); w.job = null; w.jobId = null;
+      goStep(2); loadDir('/' + w.subdir);
+    };
+    $('#wHome').onclick = renderHome;
+  }
+}
+
+// ── 状态条 ──────────────────────────────────────────────────────
+function renderStatus({ sys, net, backups }) {
+  const list = state.disks;
+  const disk0 = list[0];
+  const hasRescue = list.some(d => (d.partitions || []).some(p => p.isKlaRescue));
+
+  const items = [
+    { dot: 'ok', label: '固件',
+      value: `${(sys && sys.firmware) || '?'} · SB ${(sys && sys.secureBoot) || '?'}` },
+    { dot: 'ok', label: '内存', value: fmtSize(sys && sys.memoryBytes) },
+    { dot: disk0 ? 'ok' : 'err', label: '磁盘',
+      value: disk0 ? `${disk0.model} ${fmtSize(disk0.sizeBytes)}` : '未检测到' },
+    { dot: (net && net.online) ? 'ok' : 'warn', label: '网络',
+      value: (net && net.online) ? '已连接' : '未连接' },
+    { dot: hasRescue ? 'ok' : 'err', label: '救援分区',
+      value: hasRescue ? '已挂载' : '未找到' },
+    { dot: (backups && backups.found) ? 'ok' : 'warn', label: '备份',
+      value: (backups && backups.found)
+        ? `${((backups.index && backups.index.chains) || []).length} 条链` : '无' }
+  ];
+
+  $('#statusbar').innerHTML = items.map(i =>
+    `<span class="st-item"><i class="dot ${i.dot}"></i>${i.label} <b>${esc(i.value)}</b></span>`
+  ).join('');
+
+  $('#machineName').textContent = (sys && sys.machine) || '未知机型';
+  $('#machineName').title = (sys && sys.machine) || '';
+}
+
+// ── 横幅按钮 / 返回 ─────────────────────────────────────────────
+document.querySelectorAll('.banner-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const act = btn.dataset.action;
+    if (act === 'help') {
+      $('#helpBody').innerHTML = `
+        <span class="ht">关于 KARL'S LIGHT ACCESS</span>
+        这是一套住在本机硬盘隐藏分区里的救援环境，不依赖任何外部介质。
+        <div class="hnote">左侧四个分类的结构参照 IBM ThinkPad 的 Access IBM
+        预桌面区域：救援与恢复、配置、通信、诊断。</div>`;
+      return;
+    }
+    if (!leaveWizard()) return;
+    showHelpRaw(act === 'reboot' ? '重启' : '关机', '电源操作尚未接入实现。');
+  });
+});
+
+$('#backBtn').addEventListener('click', () => { if (leaveWizard()) renderHome(); });
+
+// ── 启动 ────────────────────────────────────────────────────────
+(async function boot() {
+  const [sys, disks, net, tools, backups] = await Promise.all(
+    ['/api/system', '/api/disks', '/api/network', '/api/tools', '/api/backups'].map(get)
+  );
+  state.tools = tools || {};
+  state.disks = (disks && disks.disks) || [];
+  renderHome();
+  renderStatus({ sys, net, backups });
+
+  // 直接移除（不依赖 setTimeout）：之前用 setTimeout(400) 做渐隐，但无头
+  // 测试的 driver 在 nav 渲染后立即断言，会抢在 timer fire 前检查 #splash，
+  // 误报"还在"。PLAIN 的 --dump-dom 能等到 timer fire，driver 不会——两者
+  // 不一致。index.html 注释本就写"拿到接口数据后移除"，渐隐是过度设计。
+  $('#splash').remove();
+})();

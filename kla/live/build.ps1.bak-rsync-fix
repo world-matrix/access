@@ -1,0 +1,166 @@
+﻿<#
+.SYNOPSIS
+    在 WSL2 中构建 KARL'S LIGHT ACCESS 救援 ISO。
+
+.DESCRIPTION
+    live-build 需要 chroot、扩展属性和设备节点，这些在 /mnt/d 这类 DrvFs
+    挂载点上都不可用。本脚本会把配置复制到 WSL 原生文件系统构建，完成后
+    把 ISO 拷回本目录。
+
+.PARAMETER Distro
+    要使用的 WSL 发行版名称。留空则自动挑选第一个 Debian/Ubuntu。
+
+.PARAMETER Clean
+    构建前执行 lb clean，删掉 chroot/ 和 binary/ 重来，但保留包缓存——
+    改了包列表或钩子后用这个，几分钟就能重建。
+    要连缓存一起清（怀疑缓存坏了），用 -Clean -Purge。
+
+.PARAMETER Purge
+    与 -Clean 连用时改为 lb clean --purge，包缓存一并删除，全部重新下载。
+
+.EXAMPLE
+    .\build.ps1
+    .\build.ps1 -Distro Debian -Clean
+#>
+[CmdletBinding()]
+param(
+    [string] $Distro,
+    [switch] $Clean,
+    [switch] $Purge
+)
+
+$ErrorActionPreference = 'Stop'
+$LocalDir  = $PSScriptRoot
+$BuildDir  = 'kla-build'
+$IsoName   = 'kla-rescue-amd64.hybrid.iso'
+
+function Write-Step($msg) { Write-Host "==> $msg" -ForegroundColor Cyan }
+function Write-Warn($msg) { Write-Host "!!  $msg" -ForegroundColor Yellow }
+
+# --- 1. 找 WSL 发行版 --------------------------------------------------------
+Write-Step ' 检查 WSL'
+
+if (-not (Get-Command wsl.exe -ErrorAction SilentlyContinue)) {
+    throw "未找到 wsl.exe。请先安装 WSL2：wsl --install -d Debian"
+}
+
+# wsl -l -q 输出是 UTF-16LE，PowerShell 5.1 默认按 ANSI 读会变成乱码
+$prevEncoding = [Console]::OutputEncoding
+[Console]::OutputEncoding = [System.Text.Encoding]::Unicode
+try {
+    $distros = (wsl.exe -l -q) | ForEach-Object { $_.Trim() } | Where-Object { $_ }
+}
+finally {
+    [Console]::OutputEncoding = $prevEncoding
+}
+
+if (-not $distros) {
+    throw "WSL 没有已安装的发行版。运行：wsl --install -d Debian"
+}
+
+if (-not $Distro) {
+    # KLA-Build 优先：它是 Setup-BuildHost.ps1 造的 trixie 宿主。商店那个
+    # Debian 是 2021 年的 bullseye，用它构建会踩一串版本坑，所以只在没有
+    # KLA-Build 时才退回去。
+    $Distro = $distros | Where-Object { $_ -eq 'KLA-Build' } | Select-Object -First 1
+    if (-not $Distro) {
+        $Distro = $distros | Where-Object { $_ -match 'Debian' } | Select-Object -First 1
+    }
+    if (-not $Distro) {
+        $Distro = $distros | Where-Object { $_ -match 'Ubuntu' } | Select-Object -First 1
+    }
+    if (-not $Distro) {
+        throw "没找到可用的构建宿主。已安装的有：$($distros -join ', ')。先跑 Setup-BuildHost.ps1。"
+    }
+}
+
+if ($distros -notcontains $Distro) {
+    throw "发行版 '$Distro' 不存在。已安装的有：$($distros -join ', ')"
+}
+Write-Host "    使用发行版: $Distro"
+
+# --- 2. 把配置复制进 WSL 原生文件系统 ---------------------------------------
+Write-Step ' 同步配置到 WSL 原生文件系统'
+
+# D:\work\KARLS_LIGHT_ACCESS\kla\live  ->  /mnt/d/work/KARLS_LIGHT_ACCESS/kla/live
+$drive   = $LocalDir.Substring(0, 1).ToLower()
+$rest    = $LocalDir.Substring(2).Replace('\', '/')
+$srcWsl  = "/mnt/$drive$rest"
+
+# rsync 保证增量同步，改一个包列表不用重传整个目录
+$syncCmd = @"
+set -e
+mkdir -p ~/$BuildDir
+if command -v rsync >/dev/null 2>&1; then
+    rsync -a --delete --exclude='*.iso' --exclude='*.sha256' --exclude='build.log' \
+          --exclude='build.ps1' --exclude='.build/' --exclude='cache/' \
+          --exclude='.cache/' \
+          '$srcWsl/' ~/$BuildDir/
+else
+    cp -rf '$srcWsl/.' ~/$BuildDir/
+fi
+# Windows 上编辑的脚本可能带 CRLF，Linux 下会报 'bad interpreter'
+# 注意 sed 里的 `$ 必须用反引号转义：这是可扩展 here-string，PowerShell 会
+# 抢先解释 `$(...) 和 `$名字。上面那句 du 就是漏了转义才在 Windows 侧执行。
+find ~/$BuildDir -type f \( -name '*.sh' -o -name 'config' -o -name '*.hook.chroot' \
+     -o -name '*.list.chroot' -o -name 'kla-session' \) -exec sed -i 's/\r`$//' {} +
+chmod +x ~/$BuildDir/auto/config ~/$BuildDir/build.sh
+chmod +x ~/$BuildDir/config/hooks/normal/*.hook.chroot 2>/dev/null || true
+chmod +x ~/$BuildDir/config/includes.chroot/usr/local/bin/kla-session 2>/dev/null || true
+echo "    同步完成: `$(du -sh ~/$BuildDir | cut -f1)"
+"@
+
+wsl.exe -d $Distro -u root -- bash -lc $syncCmd
+if ($LASTEXITCODE -ne 0) { throw "同步失败（退出码 $LASTEXITCODE）" }
+
+# --- 3. 构建 ----------------------------------------------------------------
+Write-Step ' 开始构建（首次约 20–40 分钟）'
+Write-Warn '构建需要 root，WSL 可能提示输入密码'
+
+$cleanFlag = if ($Clean) { if ($Purge) { 'purge' } else { '1' } } else { '0' }
+
+# 这里刻意保持成**单行**命令，并且用 -u root 而不是在脚本里判断 sudo。
+#
+# 踩过的坑：把多行 shell 脚本当一个参数塞给 `wsl.exe -- bash -lc`，参数会在
+# Windows→WSL 的边界上被重新拆分和引用，带括号/引号的行会被改写——轻则报
+# `syntax error near unexpected token '('`，重则整段静默不执行还返回 0
+# （构建那步就这么空跑过一轮，日志都没生成）。单行 + 不带括号最稳。
+#
+# -u root：KLA-Build 是 --variant=minbase 造的，**没有 sudo**，但默认用户
+# 就是 root。直接指定用户比在脚本里 if sudo 分支更简单，对商店那个 Debian
+# 同样有效。
+#
+# 输出重定向到 WSL 侧的 run.log 而不是让它流回 PowerShell：几万行构建输出
+# 穿过 wsl.exe 回来会被缓冲截断（开头几屏直接丢失）。落盘再取回，一行不少。
+$runLog    = "run.log"
+$buildCmd  = "cd ~/$BuildDir && KLA_BUILD_DIR=`$HOME/$BuildDir KLA_CLEAN=$cleanFlag bash build.sh > $runLog 2>&1"
+
+Write-Host "    日志: $(Join-Path $LocalDir $runLog)（构建期间可另开窗口 tail）" -ForegroundColor DarkGray
+wsl.exe -d $Distro -u root -- bash -lc $buildCmd
+$buildExit = $LASTEXITCODE
+
+# 无论成败都把日志取回来——失败时它就是唯一的线索
+wsl.exe -d $Distro -u root -- bash -lc "cp -f ~/$BuildDir/$runLog '$srcWsl/' 2>/dev/null || true"
+
+if ($buildExit -ne 0) {
+    Write-Warn "构建失败（退出码 $buildExit）。日志末尾："
+    wsl.exe -d $Distro -u root -- bash -lc "tail -40 ~/$BuildDir/$runLog"
+    throw "构建失败（退出码 $buildExit）"
+}
+
+# --- 4. 取回 ISO ------------------------------------------------------------
+Write-Step ' 复制 ISO 回 Windows'
+
+$copyCmd = "cp -f ~/$BuildDir/$IsoName ~/$BuildDir/$IsoName.sha256 '$srcWsl/'"
+wsl.exe -d $Distro -u root -- bash -lc $copyCmd
+if ($LASTEXITCODE -ne 0) { throw "复制 ISO 失败（退出码 $LASTEXITCODE）" }
+
+$iso = Join-Path $LocalDir $IsoName
+if (-not (Test-Path $iso)) { throw "预期的 ISO 不存在：$iso" }
+
+$size = [math]::Round((Get-Item $iso).Length / 1GB, 2)
+Write-Host ''
+Write-Step ' 完成'
+Write-Host "    $iso  ($size GB)" -ForegroundColor Green
+Write-Host ''
+Write-Host '    下一步：用 scripts\Phase0-VmSandbox.ps1 挂到虚拟机里验证' -ForegroundColor DarkGray

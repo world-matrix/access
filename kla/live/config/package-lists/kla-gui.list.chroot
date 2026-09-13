@@ -1,0 +1,39 @@
+# ===== 最小图形栈 =====
+# 不用 xserver-xorg-video-all（拉全部 DDX 驱动约 40 MB）。
+# 2010 年后的显卡都支持 KMS，xserver-xorg-core 内置的 modesetting
+# 驱动即可驱动 Intel/AMD/NVIDIA；下面两个只作保底。
+xserver-xorg-core
+xserver-xorg-video-fbdev
+xserver-xorg-video-vesa
+# 同理不用 xserver-xorg-input-all（含 synaptics/wacom 等用不到的）
+xserver-xorg-input-libinput
+xinit
+x11-xserver-utils
+openbox
+
+# ===== ACCESS UI 依赖 =====
+# UI 是 Chromium kiosk 加载本地 Python 后端，无需 GTK/Qt 工具链
+chromium
+python3
+
+# ===== 文件救援用得到的图形工具 =====
+pcmanfm
+lxterminal
+
+# ===== 中文显示（缺了菜单全是方块）=====
+# 【1 GB 预算下的取舍】原来用 fonts-noto-cjk，但 Debian 打包的是
+# 一个含 简中/繁中/日/韩 多字重的 OTC 大文件，Installed-Size 约 250 MB，
+# 且无法按语言拆分——比整个救援系统还大。
+#
+# 换成文泉驿微米黑：4.5 MB，覆盖 GB2312+GBK 约 2.2 万汉字，
+# UI 字号下观感良好。文件救援要显示任意中文文件名，所以不能做子集化，
+# 必须用覆盖完整的字体——微米黑的覆盖范围足够。
+fonts-wqy-microhei
+fonts-dejavu-core
+
+# ===== 网络 =====
+# 不装 network-manager-gnome：nm-applet 需要托盘，而 openbox 默认没有；
+# 网络配置由 UI 后端调 nmcli 完成（server.py 已经这么做）。
+network-manager
+wpasupplicant
+iw

@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>KARL'S LIGHT Access — 使用帮助文档</title>
+<link rel="stylesheet" href="app.css">
+<style>
+  body { background: #fff; display: block; overflow: auto; }
+  .help-wrap { max-width: 920px; margin: 0 auto; padding: 32px 28px 96px; color: var(--text); line-height: 1.85; }
+  .help-wrap h1 { font-size: 28px; font-weight: 300; color: var(--ksl-navy); letter-spacing: 1px; margin-bottom: 6px; }
+  .help-wrap .docsub { color: var(--text-soft); font-size: 13px; margin-bottom: 28px; padding-bottom: 18px; border-bottom: 2px solid var(--ksl-red); }
+  .help-wrap h2 { font-size: 19px; color: var(--ksl-red); margin: 34px 0 10px; padding-left: 10px; border-left: 4px solid var(--ksl-red); }
+  .help-wrap h3 { font-size: 15px; font-weight: bold; color: var(--ksl-navy); margin: 22px 0 6px; }
+  .help-wrap h4 { font-size: 13px; font-weight: bold; margin: 14px 0 4px; color: #333; }
+  .help-wrap p  { font-size: 13.5px; margin-bottom: 8px; }
+  .help-wrap ol,.help-wrap ul { margin: 6px 0 10px 22px; }
+  .help-wrap li { margin-bottom: 4px; font-size: 13.5px; }
+  .help-wrap ol li { list-style: decimal; }
+  .help-wrap ul li { list-style: disc; }
+  .help-wrap code, .help-wrap .kbd, .help-wrap pre {
+    font-family: 'Consolas', 'Courier New', monospace; font-size: 12.5px;
+  }
+  .help-wrap code { background: var(--ksl-red-soft); padding: 1px 6px; border-radius: 2px; color: var(--ksl-red); }
+  .help-wrap .kbd {
+    background: #f3f1f4; color: var(--ksl-navy); padding: 1px 7px; border-radius: 3px;
+    border: 1px solid var(--line); border-bottom-width: 2px; margin: 0 2px;
+  }
+  .help-wrap pre {
+    background: var(--ksl-navy-d); color: #dedae8;
+    padding: 12px 14px; border-radius: 4px; white-space: pre-wrap; word-break: break-all;
+    margin: 8px 0 12px; line-height: 1.55;
+  }
+  .help-wrap table { border-collapse: collapse; margin: 8px 0 14px; width: 100%; font-size: 13px; }
+  .help-wrap th,.help-wrap td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; vertical-align: top; }
+  .help-wrap th { background: var(--help-bg); color: var(--ksl-navy); }
+  .help-wrap .toc {
+    background: var(--help-bg); border-left: 4px solid var(--ksl-navy);
+    padding: 14px 18px 16px 28px; margin: 16px 0 24px; border-radius: 0 4px 4px 0;
+  }
+  .help-wrap .toc h3 { margin: 0 0 8px; color: var(--ksl-navy); }
+  .help-wrap .toc a { color: var(--ksl-navy); text-decoration: none; font-size: 13.5px; }
+  .help-wrap .toc a:hover { color: var(--ksl-red); text-decoration: underline; }
+  .help-wrap blockquote {
+    border-left: 3px solid var(--ksl-grey); background: var(--help-bg);
+    padding: 10px 14px; margin: 10px 0 12px; color: #3b3b4b; border-radius: 0 3px 3px 0;
+  }
+  .help-wrap blockquote.warn {
+    border-left-color: var(--ksl-red); background: var(--ksl-red-soft); color: #4b1d1b;
+  }
+  .help-wrap blockquote.tip {
+    border-left-color: var(--ok); background: #e8f4ea; color: #1b3b1f;
+  }
+  .help-wrap a { color: var(--ksl-red); text-decoration: none; }
+  .help-wrap a:hover { text-decoration: underline; }
+  .help-wrap .foot-sep { border-top: 1px solid var(--line); margin-top: 40px; padding-top: 14px; font-size: 12px; color: var(--text-soft); }
+</style>
+</head>
+<body>
+<div class="help-wrap">
+
+<h1>KARL'S LIGHT Access 使用帮助文档</h1>
+<div class="docsub">
+  版本 1.2 Public Beta · 适用于 KARL'S LIGHT Access 救援环境 &amp; Windows 端主程序
+  · © KARL'S LIGHT CO., LTD. · Designed by KARL'S LIGHT in Guiyang
+</div>
+
+<div class="toc">
+  <h3>目录</h3>
+  <ol>
+    <li><a href="#s1">1. KARL'S LIGHT Access 是什么</a></li>
+    <li><a href="#s2">2. 如何进入救援环境（3 种方法）</a></li>
+    <li><a href="#s3">3. 救援环境界面总览</a></li>
+    <li><a href="#s4">4. 六大类功能详解</a>
+      <ol>
+        <li><a href="#s4-1">4.1 救援与恢复</a></li>
+        <li><a href="#s4-2">4.2 配置</a></li>
+        <li><a href="#s4-3">4.3 通信</a></li>
+        <li><a href="#s4-4">4.4 诊断</a></li>
+        <li><a href="#s4-5">4.5 高级功能</a></li>
+        <li><a href="#s4-6">4.6 Linux 工具</a></li>
+      </ol>
+    </li>
+    <li><a href="#s5">5. Windows 端主程序操作指南</a></li>
+    <li><a href="#s6">6. 常见问题 FAQ</a></li>
+    <li><a href="#s7">7. 按键与快捷键速查</a></li>
+    <li><a href="#s8">8. 技术支持与联系</a></li>
+  </ol>
+</div>
+
+<h2 id="s1">1. KARL'S LIGHT Access 是什么</h2>
+
+<p>KARL'S LIGHT Access（简称 KLA）是一套<strong>安装在本机硬盘隐藏分区里的系统救援与恢复环境</strong>。它复刻了 IBM ThinkPad 上那颗蓝色 Access 按键的思路——救援系统不依赖任何外部介质（U盘、光盘），每次开机先进 KLA 启动菜单，按 <span class="kbd">F4</span> 就进得去。</p>
+
+<p>当系统出现以下情况时，你就需要它：</p>
+<ul>
+  <li>Windows 无法启动，显示黑屏 / 蓝屏 / 「找不到操作系统」；</li>
+  <li>病毒或恶意软件把系统破坏，正常模式下无法清除；</li>
+  <li>安装驱动、补丁或软件后系统再也进不去；</li>
+  <li>想把系统恢复到最初部署时的「出厂状态」；</li>
+  <li>想从一台无法启动的电脑里把重要数据拷出来；</li>
+  <li>想判断故障是软件问题，还是硬盘、内存等硬件真的坏了。</li>
+</ul>
+
+<p>KLA 由两部分组成：</p>
+<table>
+  <tr><th style="width:24%">组成部分</th><th>说明</th></tr>
+  <tr><td>Windows 端主程序</td><td>在系统正常时使用：备份当前系统、管理还原点、把电脑直接引导进救援环境。部署时写入隐藏分区。</td></tr>
+  <tr><td>救援环境（本页面所处）</td><td>写在硬盘独立隐藏分区里的完整 Linux 系统。任何时间都能启动，不依赖 Windows 是否能正常工作。</td></tr>
+</table>
+
+<h2 id="s2">2. 如何进入救援环境（3 种方法）</h2>
+
+<h3>方法一：开机按热键（推荐，最快捷）</h3>
+<p>开机或重启后，屏幕上出现 KARL'S LIGHT GRUB 菜单时：</p>
+<blockquote class="tip">
+  按 <span class="kbd">F4</span> 键，直接进入「KARL'S LIGHT Access 救援与恢复环境」。
+</blockquote>
+<p>其它热键：</p>
+<table>
+  <tr><th>按键</th><th>功能</th></tr>
+  <tr><td><span class="kbd">W</span> 或 <span class="kbd">Enter</span>（默认 3 秒后）</td><td>正常启动 Windows</td></tr>
+  <tr><td><span class="kbd">F4</span></td><td>进入 KLA 救援环境（当前页面）</td></tr>
+  <tr><td><span class="kbd">F5</span></td><td>运行 MemTest86+ 内存检测（不进入救援环境）</td></tr>
+</table>
+
+<h3>方法二：在 Windows 端主程序里直接引导</h3>
+<ol>
+  <li>打开 <strong>KARL'S LIGHT Access</strong> 主程序（桌面或开始菜单）；</li>
+  <li>在主界面使用相应功能（如「还原」、「修复启动」）；</li>
+  <li>程序会写入 UEFI BootNext 变量，重启后<strong>自动进入</strong>救援环境并跳过 GRUB 菜单倒计时。</li>
+</ol>
+
+<h3>方法三：从 U 盘/ISO 启动</h3>
+<p>如果本机的引导区已经损坏（连 GRUB 都看不见），可以用 KLA 官方提供的 ISO 写入 U 盘，从 U 盘启动——U 盘版本的救援环境与隐藏分区版本功能完全相同。</p>
+
+<blockquote class="warn">
+  <strong>警告：</strong>无论用哪种方法，在救援环境中执行<strong>还原系统、恢复出厂、格式化分区</strong>等操作前，务必先用「文件救援」功能把重要数据导出到与本机物理分离的存储介质。
+</blockquote>
+
+<h2 id="s3">3. 救援环境界面总览</h2>
+
+<p>救援环境的界面结构完全参照 IBM ThinkPad Access Predesktop Area（预桌面区域）的经典布局：</p>
+
+<table>
+  <tr><th style="width:22%">区域</th><th>位置</th><th>作用</th></tr>
+  <tr><td>顶部横幅</td><td>顶端</td><td>产品标识 + <a href="#about">关于</a> / <a href="#helpdoc">帮助文档</a> / 重启 / 关机 四个操作按钮。</td></tr>
+  <tr><td>左侧导航栏</td><td>左侧 1/5</td><td>四大类功能入口。鼠标悬停时，<strong>右侧说明栏</strong>会显示对应任务的操作提示与警告。</td></tr>
+  <tr><td>中部内容区</td><td>中间 2/3</td><td>任务列表 / 操作向导页。点任务卡会进入分步骤向导（下一步、上一步、取消按钮固定在同一位置）。</td></tr>
+  <tr><td>右侧说明栏</td><td>右侧 1/4</td><td>当前悬停任务的详细说明。这是防误操作的第一道防线——动手前先看一遍。</td></tr>
+  <tr><td>底部状态条</td><td>最下方</td><td>硬件探测进度、网络状态、运行时长等实时信息。</td></tr>
+  <tr><td>左栏底部（机型 + 版本）</td><td>左下</td><td><em>点击可直接弹出「关于」对话框</em>，显示版本号、版权与协议链接。</td></tr>
+</table>
+
+<blockquote class="tip">
+  救援环境是<strong>全中文</strong>的，但文件系统名、设备名、分区标签是 Windows 或硬盘厂商原来的内容，所以仍会出现英文或数字混合，这是正常的。
+</blockquote>
+
+<h2 id="s4">4. 六大类功能详解</h2>
+
+<h3 id="s4-1">4.1 救援与恢复</h3>
+<p>最常用的一组。你的系统坏得有多严重？按下面的顺序选：</p>
+
+<table>
+  <tr><th>任务</th><th>什么时候用</th><th>风险</th></tr>
+  <tr><td>文件救援</td><td>只想把数据拷出来，不管系统修不修。<strong>系统坏了先做这一步！</strong></td><td>极低：源分区只读挂载，不会写入任何内容。</td></tr>
+  <tr><td>从备份还原</td><td>之前做过备份，想回滚到系统还正常时的某个还原点。</td><td>中：系统分区会被覆盖，但不影响其它分区。增量还原按依赖链依次应用。</td></tr>
+  <tr><td>恢复出厂</td><td>想把系统整个回到第一次部署 KLA 时的干净状态。</td><td>高：系统分区被完整覆盖，出厂基准之后安装的程序、驱动、设置都会消失。</td></tr>
+</table>
+
+<h4>📌 文件救援（推荐第一优先）</h4>
+<p>典型场景：Windows 打不开，但硬盘还在。四步操作：</p>
+<ol>
+  <li><strong>选择源分区：</strong>从分区列表里挑要抢救数据的那个分区。通常是标着<strong>「Windows 数据」</strong>的 NTFS 卷。</li>
+  <li><strong>挑选文件：</strong>左侧勾目录、右侧勾文件，所有勾选中的都会被拷贝。默认把 <code>桌面</code>、<code>文档</code>、<code>图片</code>、<code>视频</code>、<code>下载</code> 先勾上最省时间。</li>
+  <li><strong>选择保存位置：</strong>
+    <blockquote class="warn">
+      必须选在<strong>不同的物理硬盘</strong>！同一块物理硬盘上的备份挡不住硬盘本身故障。优先选：<br>
+      ✅ 外置 U 盘 / 移动硬盘　✅ 另一块内部硬盘（D 盘、E 盘等，<em>前提是和源盘不是同一块物理盘</em>）　✅ 网络共享（NAS）<br>
+      ❌ 源分区所在的同一块物理硬盘的其它分区　❌ 救援分区自己
+    </blockquote>
+  </li>
+  <li><strong>开始拷贝：</strong>顶部进度条显示当前速度、剩余时间、正在拷的文件。拷完会显示「成功 / 失败 / 跳过」统计。</li>
+</ol>
+
+<h4>📌 从备份还原 vs 恢复出厂</h4>
+<p>两者都会覆盖系统分区，但目标不同：</p>
+<ul>
+  <li><strong>从备份还原：</strong>回到你自己做的某一个还原点（比如昨天晚上、上周一等）。你自己的数据、安装的程序根据你选的档位（完整系统 / 系统与程序 / 仅个人文件）保留。</li>
+  <li><strong>恢复出厂：</strong>回到 KLA 第一次部署时捕获的「出厂母盘」。<strong>之后所有变更都会消失</strong>，包括你之后打的驱动、装的软件、自己创建的用户账户。</li>
+</ul>
+
+<blockquote class="warn">
+  执行「从备份还原」或「恢复出厂」之前，<strong>先跑文件救援把所有需要保留的数据导出</strong>。
+</blockquote>
+
+<h3 id="s4-2">4.2 配置</h3>
+
+<table>
+  <tr><th>任务</th><th>说明</th><th>典型场景</th></tr>
+  <tr><td>分区管理（GParted）</td><td>图形化分区工具，可以创建 / 删除 / 调整 / 格式化分区。</td><td>新购 SSD 要分区，或要扩大系统盘容量。</td></tr>
+  <tr><td>Windows 账户</td><td>直接编辑 Windows SAM 数据库，重置本地账户密码 / 启用被禁用账户。</td><td>忘记 Windows 密码、或某账户被禁用后想登录。</td></tr>
+  <tr><td>修复启动</td><td>重建 ESP 上的引导文件、BCD，修复「找不到操作系统」「0xc000000f」。</td><td>还原完系统仍无法启动、或安装多系统后引导被覆盖。</td></tr>
+</table>
+
+<blockquote>
+  <strong>关于「Windows 账户」的限制：</strong>本工具只对「本地账户」有效。Microsoft 在线账户（显示为邮箱的那种）的密码无法在本地重置，请访问 <code>account.microsoft.com</code> 找回。
+</blockquote>
+
+<h3 id="s4-3">4.3 通信</h3>
+
+<table>
+  <tr><th>任务</th><th>说明</th></tr>
+  <tr><td>网络设置</td><td>连接 Wi-Fi、配置有线网络。连接状态会显示在底部状态条。</td></tr>
+  <tr><td>打开浏览器</td><td>开一个 Chromium 独立窗口。<strong>系统坏了正好可以用它查报错信息、下载驱动</strong>——你手头就一台坏电脑的时候，这个功能是救命的。</td></tr>
+  <tr><td>网络位置（SMB / CIFS）</td><td>挂载局域网内的共享目录。可以把「文件救援」的目标设置成 NAS，<em>非常适合同一块物理硬盘上没有合适目标磁盘的情况</em>。</td></tr>
+</table>
+
+<blockquote class="tip">
+  <strong>提示：</strong>浏览器下载的文件默认保存在内存盘，<strong>重启即消失</strong>。要保留的文件请另存为到 U 盘或已挂载的网络位置。
+</blockquote>
+
+<h3 id="s4-4">4.4 诊断</h3>
+<p>当你不确定「是软件问题还是硬件真坏了」时，先跑这一组。<strong>硬件问题不要浪费时间在系统还原上，直接换件。</strong></p>
+
+<h4>📌 硬件诊断</h4>
+<ul>
+  <li>读取硬盘 SMART 健康数据：<strong>重新分配扇区计数（Reallocated Sectors Count）</strong>、<strong>待处理扇区（Current Pending Sector）</strong>非零就是硬盘正在坏，备份完换盘。</li>
+  <li>读取传感器温度：CPU、GPU、硬盘温度异常高（空闲时 CPU ≥ 80℃ / 硬盘 ≥ 55℃）说明散热有问题。</li>
+  <li>CPU 与内存压力测试：短时压测观察系统是否会随机崩溃。</li>
+</ul>
+
+<h4>📌 内存测试</h4>
+<p>随机蓝屏、程序莫名崩溃、数据莫名损坏的头号嫌疑。进入后会<strong>重启</strong>到 MemTest86+ 独立环境（不是在当前系统里运行），这样测试更准确。完整跑一遍可能要 3–12 小时，<em>建议睡觉前开始，第二天早上看结果</em>。</p>
+
+<h4>📌 显卡诊断</h4>
+<p>花屏、黑屏、分辨率异常、驱动崩溃时先看这里。一次读取：</p>
+<ul>
+  <li><strong>显卡型号与 PCI 信息</strong>——确认机器里到底是哪张卡；</li>
+  <li><strong>当前绑定的内核驱动</strong>——显示「未绑定驱动」说明内核没认出这张卡（显卡太新或缺少固件）；</li>
+  <li><strong>显存容量</strong>（AMD 卡由内核直接报告）与已用量；</li>
+  <li><strong>每个视频接口的连接状态</strong>与支持的最高分辨率——排查「线没插好 / 接口坏了」；</li>
+  <li><strong>内核 GPU 报错</strong>——DRM/驱动崩溃的原始记录。</li>
+</ul>
+
+<h4>📌 数据恢复</h4>
+<p>调用 TestDisk（恢复误删分区表）和 PhotoRec（按文件特征扫描恢复已删除文件）。</p>
+<blockquote class="warn">
+  <strong>发现文件/分区误删后，立即停止向该磁盘写入任何内容</strong>（包括保存浏览器下载、拷文件过去）。新写入的内容会覆盖待恢复的数据，永久无法恢复。
+</blockquote>
+
+<h3 id="s4-5">4.5 高级功能</h3>
+<p>给知道自己在做什么的用户准备的工具集。日常救援不需要进这里。</p>
+
+<h4>⌨ Linux 终端</h4>
+<p>打开完整的 bash 终端。救援环境是 Debian Linux，<code>mount</code> / <code>fsck</code> / <code>dd</code> / <code>nano</code> 等常用命令都能直接用。</p>
+<blockquote class="tip">救援系统运行在内存里，终端里对系统做的修改重启即消失；对硬盘分区做的修改是永久的。</blockquote>
+
+<h4>💿 安装全新系统</h4>
+<p>选择一个你准备的 <strong>Windows 或 Linux 官方 ISO 镜像</strong>，把它制作成可启动的安装盘（一般是 U 盘）。流程：选 ISO 所在分区 → 浏览选中 .iso 文件 → 选目标盘 → 输入 <code>ERASE</code> 确认。</p>
+<ul>
+  <li>Windows ISO：自动拆分超过 4 GB 的 install.wim（FAT32 限制），重启后从该盘启动即是标准 Windows 安装程序；</li>
+  <li>Linux ISO：整盘刻录（dd）。</li>
+</ul>
+<blockquote class="warn">
+  <strong>制作过程会清空目标盘上的所有数据，不可撤销。</strong>目标盘不能是 ISO 所在盘。重要资料请先拷出。
+</blockquote>
+
+<h4>🔑 SSH 设置</h4>
+<p>开启救援系统的 SSH 服务并设置 root 密码，局域网内其他设备即可用 <code>ssh root@本机IP</code> 连入。密码与服务状态在重启后自动失效（内存盘特性），无需担心遗留。</p>
+
+<h4>🤝 远程协助</h4>
+<p>自己不会操作时：点「一键开启协助」→ 设置密码 → 把页面上显示的连接命令和密码告诉<strong>同一局域网里</strong>的技术人员，对方即可远程操作这台机器的救援环境完成救援。</p>
+<blockquote class="tip">此功能只支持局域网内的 SSH 连接，不提供互联网远程控制。双方需连接同一路由器。</blockquote>
+
+<h4>🗂 文件管理器</h4>
+<p>打开 PCManFM 图形化文件管理器，浏览已挂载的分区 / U 盘 / SMB 共享，做复制、删除、重命名。</p>
+<blockquote class="warn">在文件管理器里删除的文件不进回收站，直接删除。</blockquote>
+
+<h3 id="s4-6">4.6 Linux 工具</h3>
+<p>Linux 对很多电脑的适配性确实差——装完系统 WiFi 没了、开机黑屏、更新中断……这一类工具专门修这些问题。每个修复都是一组标准命令（来自各发行版官方文档与 Arch Wiki 的通行做法），选中问题 → 选 Linux 分区 → 确认执行。</p>
+<table>
+  <tr><th>修复项</th><th>对应症状</th></tr>
+  <tr><td>更新中断修复</td><td>升级/装软件时断电，之后 apt/dpkg 报错装不了任何东西（最常见）</td></tr>
+  <tr><td>WiFi/蓝牙修复</td><td>无线网卡识别了但搜不到网、蓝牙开关是灰的（固件缺失）</td></tr>
+  <tr><td>开机黑屏修复</td><td>启动后黑屏/花屏（显卡驱动崩溃），加 nomodeset 参数急救</td></tr>
+  <tr><td>无声修复</td><td>系统正常但完全没声音（PipeWire/WirePlumber 音频栈损坏）</td></tr>
+  <tr><td>NVIDIA 驱动回退</td><td>装 N 卡专有驱动后频繁死机/黑屏，卸载回退开源驱动</td></tr>
+  <tr><td>重建 Linux 引导</td><td>重装 Windows 或动过分区后，Linux 启动项没了</td></tr>
+  <tr><td>重置 Linux 密码</td><td>忘了 root 密码</td></tr>
+  <tr><td>文件系统修复</td><td>异常断电后报 file system error / 强制只读模式</td></tr>
+</table>
+<blockquote class="tip">
+  带「需要联网」提示的修复，先在「通信 → 网络设置」里连好网络（或设置好网络代理）再来。
+  确认页会列出将要执行的每一条命令，看清楚再点开始。
+</blockquote>
+
+<h4>🌐 网络代理（通信类）</h4>
+<p>救援环境直连访问不了 GitHub 等站点时，在「通信 → 网络代理」设置路由器上已有的代理（host:port 格式）。设置后浏览器、curl/wget、apt 全部走代理。代理保存在内存里，重启自动清除。</p>
+
+<h2 id="s5">5. Windows 端主程序操作指南</h2>
+
+<h3>5.1 主界面 6 大页</h3>
+<p>Windows 端主程序左侧有 6 个导航项：</p>
+<table>
+  <tr><th>页面</th><th>作用</th></tr>
+  <tr><td>备份当前系统</td><td>创建还原点。有三档：<em>完整系统</em>、<em>系统与程序</em>（推荐默认）、<em>仅个人文件</em>。支持将本次备份设为「出厂基准」。</td></tr>
+  <tr><td>管理备份记录</td><td>查看、删除还原点，或把某一个设为出厂基准。<strong>删除中间的某个还原点会连带影响它后面所有增量——小心！</strong></td></tr>
+  <tr><td>关于软件</td><td>版本信息、版权、官方网站、许可协议、隐私政策链接、部署状态与运行日志位置。<em>左栏底部的版本号也可以点，同样弹出关于卡片</em>。</td></tr>
+  <tr><td>访问官网</td><td>跳转到 www.kezdx.com 获取最新文档、工具更新和技术支持。</td></tr>
+  <tr><td>版权声明</td><td>软件版权与第三方开源组件说明。</td></tr>
+  <tr><td>免责条款</td><td>请务必在首次使用前完整阅读。</td></tr>
+</table>
+
+<h3>5.2 备份三档怎么选</h3>
+<table>
+  <tr><th>档位</th><th>包含内容</th><th>典型体积</th><th>适用场景</th></tr>
+  <tr><td>系统与程序（默认）</td><td>Windows + 驱动 + 已安装的软件 + 设置</td><td>20–80 GB</td><td>个人文件本来就在别的盘上的用户。最推荐。</td></tr>
+  <tr><td>完整系统</td><td>上面 + 所有个人文件</td><td>80–300 GB</td><td>整机灾难恢复。</td></tr>
+  <tr><td>仅个人文件</td><td>桌面、文档、图片、视频、下载</td><td>10–100 GB</td><td>不能用来修复起不来的 Windows，但随时可以找回误删的文件。</td></tr>
+</table>
+
+<h3>5.3 备份存放位置怎么选</h3>
+<ul>
+  <li>✅ <strong>外置移动硬盘</strong>（最推荐）：物理上与主机分离，不怕主机被雷击。</li>
+  <li>✅ 另一块<strong>物理硬盘</strong>：同机箱里但不同盘，抗操作系统损坏，不抗硬盘火灾。</li>
+  <li>✅ NAS（SMB 网络共享）：可以，但要确保网络稳定。</li>
+  <li>❌ 系统盘（C 盘）：恢复出厂或还原系统会覆盖它，备份放在那里一起被洗——等于没备份。</li>
+  <li>❌ 与源分区同一块物理硬盘的任何分区：<em>挡不住硬盘硬件本身损坏</em>。</li>
+</ul>
+
+<h3>5.4 第一次部署 / 重新部署</h3>
+<p>首次运行主程序会弹出 5 步初次设置向导（引导协议同意 → 确认 → 选择分区方式 → 创建救援分区 → 写入引导 → 完成）。向导完成后，<strong>再次开机你就可以按 F4 进入救援环境了</strong>。</p>
+
+<blockquote class="tip">
+  <strong>忘记怎么启动？</strong>打开主程序 → 「关于软件」 → 「重新查看初次设置向导」可以随时走一遍，熟悉流程不会真的改动分区。
+</blockquote>
+
+<h2 id="s6">6. 常见问题 FAQ</h2>
+
+<h3>Q1. GRUB 菜单根本看不到 / 开机直接进 Windows</h3>
+<p>可能原因：</p>
+<ul>
+  <li>UEFI 设置里把启动顺序改了，Windows Boot Manager 排在 KARL'S LIGHT 前面。解决：进 UEFI 设置（一般是开机按住 <span class="kbd">F2</span> / <span class="kbd">Del</span> / <span class="kbd">F10</span>，看屏幕提示），把 KARL'S LIGHT 调到第一位。</li>
+  <li>主程序部署过程中因为杀毒软件 / 磁盘加密软件拦截，没写入启动项。解决：以管理员身份重新运行主程序，执行初次设置向导。</li>
+  <li>使用了 BitLocker 加密系统盘，部署完后被覆盖了引导签名。KLA 本身不修改 Windows 分区内容，但会写入 UEFI 启动变量——请在部署前先在 BitLocker 里暂停保护。</li>
+</ul>
+
+<h3>Q2. 按 F4 后卡在 KLA Logo，长时间不出现界面</h3>
+<p>救援系统正在探测磁盘和启动后端。正常情况下<strong>不超过 90 秒</strong>（取决于硬盘数和控制器速度）。如果超过 3 分钟：</p>
+<ol>
+  <li>请先检查是否有 USB 硬盘盒 / 读卡器里空着 / 有坏的 USB 设备，拔掉重试。</li>
+  <li>如有硬件 RAID 卡，救援环境可能缺对应驱动——请改用「方法三（U 盘 ISO 启动）」或联系官方。</li>
+  <li>尝试右上角「重启」或长按电源键 5 秒。</li>
+</ol>
+
+<h3>Q3. 文件救援里看不到我的 NTFS 分区 / 分区是灰色的</h3>
+<p>可能原因：</p>
+<ul>
+  <li><strong>Windows 没正常关机（开启了快速启动 / Fast Boot）：</strong>这是最常见的！NTFS 卷会被标记为「脏」，Linux 侧默认不会强行挂载以免破坏数据。解决：回到 Windows 正常关机（<em>不是「休眠」不是「睡眠」</em>），或在 Windows 的「电源设置 → 选择电源按钮的功能」里关闭「启用快速启动」。</li>
+  <li>分区被 BitLocker 加密：KLA 默认不解锁 BitLocker。请先在 Windows 侧解密。</li>
+  <li>分区已损坏：请先使用「诊断 → 数据恢复（TestDisk）」尝试恢复分区结构。</li>
+</ul>
+
+<h3>Q4. 文件救援目标磁盘看不到 / 保存位置是空的</h3>
+<ul>
+  <li>U 盘或移动硬盘是<strong>被救援系统启动之后才插上去的</strong>：右上角「重启」一遍，让启动阶段的硬件探测扫到它。</li>
+  <li>U 盘使用了 NTFS + 快速启动：按 Q3 的方法处理（插回 Windows 正常弹出 / 关机）。</li>
+  <li>文件系统为 exFAT：救援系统已支持 exFAT，但某些旧的 U 盘设备名可能需要重新插拔。</li>
+</ul>
+
+<h3>Q5. 「恢复出厂」提示找不到出厂基准</h3>
+<p>说明你还没标记任何一个备份为「出厂基准」。请在 Windows 端主程序的<strong>备份当前系统</strong>页，勾选「把这次备份设为出厂基准」，完成一次备份。之后救援环境就能看到。</p>
+
+<h3>Q6. 做完「从备份还原」/「恢复出厂」后仍然无法启动</h3>
+<p>请回到救援环境 → <strong>配置 → 修复启动</strong>，运行一次。这一步会：</p>
+<ul>
+  <li>重建 ESP 目录下的 <code>bootmgfw.efi</code>；</li>
+  <li>使用 <code>bcdboot</code> 重建 BCD 存储；</li>
+  <li>按 UEFI 规范重新写入 Windows Boot Manager 启动项。</li>
+</ul>
+<p>如果修复启动后仍无法启动，请检查「诊断 → 硬件诊断」的硬盘 SMART——很可能是<strong>硬盘真的坏了</strong>。</p>
+
+<h3>Q7. 内存测试要跑多久才能放心</h3>
+<p>MemTest86+ 会跑多轮，每轮覆盖所有地址 20+ 种算法。<strong>通常至少完整跑完 4 轮没有任何红色错误才可以认为内存基本没问题</strong>。<em>单条内存容量越大、跑的轮数越多，耗时越长</em>。建议睡觉前开始跑，第二天看结果。</p>
+<p>只要出现<strong>哪怕 1 个红色错误</strong>，就说明内存条有问题——请拔下擦拭金手指重插一次再测，如果还有错误就更换。</p>
+
+<h3>Q8. 做完「文件救援」后，目标磁盘上目录全乱了 / 文件名是问号</h3>
+<p>请不要把目标格式化成 FAT32（单个文件最大 4GB、中文支持也差）。建议使用 NTFS 或 exFAT。另外，极少数老旧磁盘控制器在高负载下会掉盘——请确认目标磁盘 SMART 正常。</p>
+
+<h3>Q9. Windows 侧主程序里弹出「法律协议组件加载失败」</h3>
+<p>这种情况非常罕见，意味着 exe 的清单资源（EULA / 隐私政策文本）出了问题。请重新下载 KarlsLightAccess.exe 覆盖，或者联系官方获取校验过的版本。</p>
+
+<h3>Q10. 许可协议或隐私政策更新了怎么办</h3>
+<p>协议版本更新后，Windows 端主程序会在下次启动时<strong>自动再次弹出协议要求同意</strong>。救援环境里的最新文本会在你更新系统时一并推送；你也可以随时通过顶部「关于」按钮再次查看。</p>
+
+<h2 id="s7">7. 按键与快捷键速查</h2>
+
+<h3>GRUB 启动菜单</h3>
+<table>
+  <tr><th>按键</th><th>作用</th></tr>
+  <tr><td><span class="kbd">Enter</span>（默认 3 秒后）</td><td>启动 Windows</td></tr>
+  <tr><td><span class="kbd">↑</span> / <span class="kbd">↓</span></td><td>选择菜单项</td></tr>
+  <tr><td><span class="kbd">W</span></td><td>快速启动 Windows</td></tr>
+  <tr><td><span class="kbd">F4</span></td><td>快速进入 KARL'S LIGHT Access 救援环境</td></tr>
+  <tr><td><span class="kbd">F5</span></td><td>快速进入 MemTest86+ 内存测试</td></tr>
+  <tr><td><span class="kbd">C</span></td><td>进入 GRUB 命令行（高级）</td></tr>
+</table>
+
+<h3>救援环境界面</h3>
+<table>
+  <tr><th>按键</th><th>作用</th></tr>
+  <tr><td><span class="kbd">Esc</span></td><td>关闭模态对话框（关于 / 帮助 / 协议）</td></tr>
+  <tr><td>点击左栏底部「KLA 1.2 版本」</td><td>弹出关于对话框</td></tr>
+  <tr><td>点击任务卡片</td><td>进入对应功能的向导</td></tr>
+  <tr><td>鼠标悬停任务卡片</td><td>右侧说明栏显示该任务的操作提示和警告</td></tr>
+</table>
+
+<h3>Windows 端主程序</h3>
+<table>
+  <tr><th>按键 / 操作</th><th>作用</th></tr>
+  <tr><td>点击左栏导航项</td><td>切换页面</td></tr>
+  <tr><td>点击左栏底部「版本 x.x.x 点击查看关于信息」</td><td>弹出关于卡片</td></tr>
+  <tr><td>拖拽窗口顶部</td><td>移动无边框窗口（支持 Aero Snap）</td></tr>
+</table>
+
+<h2 id="s8">8. 技术支持与联系</h2>
+
+<p>如遇到本文档未覆盖的问题，请通过以下渠道联系我们：</p>
+
+<table>
+  <tr><th style="width:24%">渠道</th><th>地址 / 方式</th></tr>
+  <tr><td>官方网站</td><td><a href="https://www.kezdx.com" target="_blank">www.kezdx.com</a>（最新版本、文档、常见问题更新）</td></tr>
+  <tr><td>产品下载</td><td>官网下载区获取最新 KarlsLightAccess.exe 与救援系统 ISO</td></tr>
+  <tr><td>反馈 Bug</td><td>请在 Windows 端主程序 → 关于软件 → 打开日志目录，把 <code>app.log</code> 和问题复现步骤一起发给官方邮箱（见官网联系页）。</td></tr>
+</table>
+
+<blockquote>
+  本软件在法律允许的最大范围内按「现状」提供。在执行任何磁盘写入操作（还原、格式化、恢复出厂等）之前，
+  请务必对重要数据另行建立不依赖本软件的独立备份。
+</blockquote>
+
+<div class="foot-sep">
+  <strong>KARL'S LIGHT Access</strong> · 版本 1.2 Public Beta · 文档更新日期 2026-08-25<br>
+  © KARL'S LIGHT CO., LTD. All Rights Reserved. · Designed by KARL'S LIGHT in Guiyang
+</div>
+
+</div>
+</body>
+</html>

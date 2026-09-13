@@ -1,0 +1,51 @@
+﻿powershell : At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:42 char:57
+At line:15 char:2575
++ ... pgrep\bin'; powershell -NoProfile -ExecutionPolicy Bypass -File "D:\w ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (At D:\work\KARL....ps1:42 char:57:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
++     'public\s+const\s+string\s+Copyright\s*=\s*\r?\n\s*"([^"]*)"\s*\+ ...
++                                                         ~
+Unexpected token '(' in expression or statement.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:42 char:59
++     'public\s+const\s+string\s+Copyright\s*=\s*\r?\n\s*"([^"]*)"\s*\+ ...
++                                                           ~
+Missing type name after '['.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:42 char:89
++ ... string\s+Copyright\s*=\s*\r?\n\s*"([^"]*)"\s*\+\s*\r?\n\s*"([^"]*)"')
++                                                                       ~~~
+Unexpected token '"')
+if (-not $m.Success) { throw "' in expression or statement.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:43 char:31
++ if (-not $m.Success) { throw "Branding.cs 閲屾病鎵惧埌 Copyright銆? }
++                               ~~~~~~~~~~~
+Unexpected token 'Branding.cs' in expression or statement.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:56 char:17
++     Write-Host "`n[1/5] 璺宠繃鍥剧墖璧勬簮"
++                 ~~~~~~~
+Unexpected token '`n[1/5]' in expression or statement.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:85 char:6
++ using System.Runtime.InteropServices;
++      ~
+Missing using directive
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:85 char:1
++ using System.Runtime.InteropServices;
++ ~~~~~
+A 'using' statement must appear before any other statements in a script.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:87 char:9
++ [assembly: AssemblyTitle("$ProductName")]
++         ~
+Missing ] at end of attribute or type literal.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:87 char:10
++ [assembly: AssemblyTitle("$ProductName")]
++          ~
+Unexpected token ':' in expression or statement.
+At D:\work\KARLS_LIGHT_ACCESS\KARL'S LIGHT ACCESS FOR WINDOWS\app\build\Build.ps1:88 char:9
++ [assembly: AssemblyProduct("$ProductName")]
++         ~
+Missing ] at end of attribute or type literal.
+Not all parse errors were reported.  Correct the reported errors and try again.
+    + CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+    + FullyQualifiedErrorId : UnexpectedToken
+ 

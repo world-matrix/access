@@ -1,0 +1,882 @@
+#!/usr/bin/env python3
+"""KARL'S LIGHT ACCESS —— UI 后端
+
+只用标准库，不引入任何 Python 依赖（救援环境要尽可能少的活动部件）。
+前端是 Chromium kiosk 加载的静态页面，通过 /api/* 拿数据。
+
+阶段 1（已完成）：证明整条链路通——系统能起、X 能起、Chromium 能起、
+后端能探到真实硬件、wimlib 在位。
+
+阶段 2（进行中）：接功能。长任务统一走「提交作业 → 轮询进度」：
+    POST /api/jobs            提交，返回作业 id
+    GET  /api/jobs            列出全部
+    GET  /api/jobs/<id>       轮询进度
+    POST /api/jobs/<id>/cancel 请求取消（置标志位，作业自己退出）
+只读的浏览走 GET /api/browse?dev=<分区名>&path=<相对路径>。
+
+**写入纪律**：默认一切只读（见 _mount_ro）。整个后端只有 _mount_rw 一处
+会以读写方式挂用户的卷，且只能从用户在 UI 上确认过的作业里调用。
+"""
+
+import json
+import os
+import re
+import shutil
+import stat
+import subprocess
+import threading
+import time
+import uuid
+from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import urlparse, parse_qs
+
+WWW_ROOT = os.path.join(os.path.dirname(os.path.abspath(__file__)), "www")
+READY_FLAG = "/run/kla-ui.ready"
+PORT = 8760
+
+# KLA 数据目录名。Windows 侧建在数据卷根目录下（默认 D:\KLA\），
+# 这里遍历 NTFS 卷时靠这个名字认出它。两侧必须一致。
+KLA_DIR = "KLA"
+MOUNT_ROOT = "/mnt/kla"
+
+# index.json 的格式版本，必须与 Windows 主程序一致（backup-design.md §4）
+INDEX_SCHEMA_VERSION = 1
+
+MIME = {
+    ".html": "text/html; charset=utf-8",
+    ".css": "text/css; charset=utf-8",
+    ".js": "application/javascript; charset=utf-8",
+    ".svg": "image/svg+xml",
+    ".png": "image/png",
+    # 启动画面的壁纸是 jpg。漏了它只会退到 octet-stream，浏览器嗅探之后
+    # 通常照样显示——正因为"恰好能用"，这种漏项不会以报错的形式暴露出来。
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg",
+    ".ico": "image/x-icon",
+}
+
+
+def run(cmd, timeout=10):
+    """跑一条命令，失败返回空串而不是抛异常——救援环境里任何工具都可能缺席。"""
+    try:
+        out = subprocess.run(
+            cmd, capture_output=True, text=True, timeout=timeout, check=False
+        )
+        return out.stdout.strip()
+    except (OSError, subprocess.SubprocessError):
+        return ""
+
+
+def list_disks():
+    """枚举物理磁盘及其分区。lsblk 的 JSON 输出最稳，不用解析人类可读格式。"""
+    raw = run(["lsblk", "-J", "-b", "-o",
+               "NAME,SIZE,TYPE,FSTYPE,LABEL,MOUNTPOINT,MODEL,PARTTYPE"])
+    if not raw:
+        return []
+    try:
+        tree = json.loads(raw).get("blockdevices", [])
+    except json.JSONDecodeError:
+        return []
+
+    def as_volume(node):
+        return {
+            "name": node.get("name"),
+            "sizeBytes": node.get("size") or 0,
+            "fstype": node.get("fstype"),
+            "label": node.get("label"),
+            "mountpoint": node.get("mountpoint"),
+            "parttype": node.get("parttype"),
+            # 认出我们自己的救援分区和 Windows 系统分区
+            "isKlaRescue": (node.get("label") or "") == "KLA_RESCUE",
+            "isWindows": (node.get("fstype") == "ntfs"),
+        }
+
+    disks = []
+    for dev in tree:
+        if dev.get("type") != "disk":
+            continue
+        children = dev.get("children") or []
+        parts = [as_volume(c) for c in children]
+        # 没有分区表、整盘就是一个文件系统的设备（superfloppy 布局）。
+        # 很多 U 盘出厂就是这样，Windows 也认。只遍历 children 的话这种盘
+        # 会列出来一块盘、底下一个卷都没有——用户看到的是"插了 U 盘但列表里没有"，
+        # 而救援时目标卷十有八九就是那根 U 盘。
+        # 判据是"有文件系统"而不是"没有 children"：分区表存在但分区还没建的空盘
+        # 确实没有可用的卷，不该假装有。
+        if not children and dev.get("fstype"):
+            parts.append(dict(as_volume(dev), isWholeDisk=True))
+        disks.append({
+            "name": dev.get("name"),
+            "model": (dev.get("model") or "").strip() or "未知型号",
+            "sizeBytes": dev.get("size") or 0,
+            "partitions": parts,
+        })
+    return disks
+
+
+def network_status():
+    """有没有网决定了「文件救援到网络位置」和浏览器能不能用。"""
+    state = run(["nmcli", "-t", "-f", "STATE", "general"])
+    conns = run(["nmcli", "-t", "-f", "NAME,TYPE,DEVICE", "connection", "show", "--active"])
+    ifaces = []
+    for line in conns.splitlines():
+        bits = line.split(":")
+        if len(bits) >= 3:
+            ifaces.append({"name": bits[0], "type": bits[1], "device": bits[2]})
+    return {"state": state or "unknown", "active": ifaces, "online": state == "connected"}
+
+
+def tool_availability():
+    """前端据此灰掉不可用的功能，而不是让用户点了才报错。"""
+    tools = {
+        "wimlib": "wimlib-imagex",
+        "ntfs3g": "ntfs-3g",
+        "smartctl": "smartctl",
+        "memtester": "memtester",
+        "gparted": "gparted",
+        "testdisk": "testdisk",
+        "chntpw": "chntpw",
+        "chromium": "chromium",
+    }
+    return {key: shutil.which(binary) is not None for key, binary in tools.items()}
+
+
+def _mount_ro(dev, mnt):
+    """只读挂载。失败返回 False，绝不抛异常。
+
+    一律只读：救援环境里误写用户数据卷是不可接受的，写操作等到用户
+    在 UI 上明确确认了某个动作再单独挂载。
+    """
+    try:
+        os.makedirs(mnt, exist_ok=True)
+    except OSError:
+        return False
+    if os.path.ismount(mnt):
+        return True
+    run(["mount", "-o", "ro", dev, mnt], timeout=20)
+    return os.path.ismount(mnt)
+
+
+def find_kla_store():
+    """定位 KLA 数据目录（母盘 + 备份链 + index.json）。
+
+    设计变更（2026-08-23）：数据不再放在 KLA_RESCUE 隐藏分区里，而是放在
+    Windows 的数据卷上，默认 ``D:\\KLA\\``。原因是目标机器只有 238.5 GB，
+    隐藏分区塞不下几十 GB 的母盘。见 docs/architecture.md「为什么把镜像放 D:」。
+
+    所以不能只认 KLA_RESCUE，要遍历所有 NTFS 卷去找 KLA/ 目录——用户的数据卷
+    盘符和卷标都是不确定的，只有目录名是我们自己定的。
+
+    多个卷同时命中时按优先级择优（有 index.json 的优先、非 Windows 系统卷优先），
+    而不是简单地取第一个：分区顺序上 C: 排在 D: 前面，用户若在 C: 根目录下也
+    建过 KLA 文件夹，取第一个就会选错卷。
+    """
+    candidates = []
+    for disk in list_disks():
+        for part in disk.get("partitions", []):
+            if part.get("fstype") == "ntfs" and part.get("name"):
+                candidates.append(part)
+
+    if not candidates:
+        return {"found": False, "reason": "没有发现 NTFS 卷，无法定位 KLA 数据目录"}
+
+    tried = []
+    hits = []
+    for part in candidates:
+        dev = "/dev/" + part["name"]
+        mnt = os.path.join(MOUNT_ROOT, part["name"])
+        if not _mount_ro(dev, mnt):
+            # Windows 快速启动/休眠会让卷处于 dirty 状态，ntfs-3g 可能拒绝挂载
+            tried.append(f"{dev} 挂载失败")
+            continue
+        store = os.path.join(mnt, KLA_DIR)
+        if not os.path.isdir(store):
+            tried.append(f"{dev} 无 {KLA_DIR}/")
+            continue
+
+        has_index = os.path.isfile(os.path.join(store, "index.json"))
+        is_system = os.path.isdir(os.path.join(mnt, "Windows", "System32"))
+        hits.append({
+            "found": True,
+            "device": dev,
+            "label": part.get("label"),
+            "mountpoint": mnt,
+            "storePath": store,
+            # 排序键：有 index.json 的排前面，Windows 系统卷排后面
+            "_rank": (0 if has_index else 1, 1 if is_system else 0),
+        })
+
+    if not hits:
+        return {"found": False, "reason": "已挂载的 NTFS 卷上都没有 KLA 目录",
+                "tried": tried}
+
+    hits.sort(key=lambda h: h["_rank"])
+    best = hits[0]
+    best.pop("_rank", None)
+    if len(hits) > 1:
+        best["otherCandidates"] = [h["device"] for h in hits[1:]]
+    return best
+
+
+def read_backup_index():
+    """读取 index.json —— Windows 主程序与 ACCESS 之间唯一的契约文件。
+
+    同时返回数据卷剩余空间和 pending-restore 状态：
+    - 剩余空间用于 R4（备份前空间检查），前端在发起还原/备份前要看这个数
+    - pending-restore.json 是 Windows 侧「还原」按钮写下的交接文件，
+      存在则说明这次开机是为了还原，UI 应直接跳到还原确认页
+    """
+    store = find_kla_store()
+    if not store.get("found"):
+        return {"found": False, "reason": store.get("reason"),
+                "tried": store.get("tried", [])}
+
+    result = {
+        "found": False,
+        "device": store["device"],
+        "label": store.get("label"),
+        "storePath": store["storePath"],
+    }
+
+    try:
+        vfs = os.statvfs(store["mountpoint"])
+        result["volumeFreeBytes"] = vfs.f_bavail * vfs.f_frsize
+        result["volumeTotalBytes"] = vfs.f_blocks * vfs.f_frsize
+    except OSError:
+        pass
+
+    pending = os.path.join(store["storePath"], "pending-restore.json")
+    if os.path.isfile(pending):
+        try:
+            with open(pending, "r", encoding="utf-8") as fh:
+                result["pendingRestore"] = json.load(fh)
+        except (OSError, json.JSONDecodeError) as exc:
+            result["pendingRestore"] = {"error": f"无法解析: {exc}"}
+
+    index_path = os.path.join(store["storePath"], "index.json")
+    if not os.path.isfile(index_path):
+        result["reason"] = f"找到 {store['storePath']}，但里面没有 index.json"
+        return result
+
+    try:
+        with open(index_path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        result["reason"] = f"index.json 无法解析: {exc}"
+        return result
+
+    if data.get("schemaVersion") != INDEX_SCHEMA_VERSION:
+        # 版本不认识就只读不改，绝不猜测格式（backup-design.md §4）
+        result["reason"] = (f"index.json 版本 {data.get('schemaVersion')} "
+                            f"不受支持（本机支持 {INDEX_SCHEMA_VERSION}）")
+        result["index"] = data
+        return result
+
+    result["found"] = True
+    result["index"] = data
+    return result
+
+
+def rescue_partition():
+    """探测 KLA_RESCUE 分区本身是否在位。
+
+    和数据目录是两回事：这个分区装的是当前正在跑的救援系统。
+    诊断价值在于——如果找不到它，说明我们是从 U 盘/光盘启动的，
+    而不是从硬盘上部署好的 KLA 启动的。
+    """
+    dev = run(["blkid", "-L", "KLA_RESCUE"])
+    return {"found": bool(dev), "device": dev or None}
+
+
+
+def system_info():
+    model = run(["dmidecode", "-s", "system-product-name"]) or "未知"
+    vendor = run(["dmidecode", "-s", "system-manufacturer"]) or ""
+    kernel = run(["uname", "-r"])
+    mem_kb = 0
+    try:
+        with open("/proc/meminfo", "r", encoding="utf-8") as fh:
+            match = re.search(r"MemTotal:\s+(\d+)", fh.read())
+            if match:
+                mem_kb = int(match.group(1))
+    except OSError:
+        pass
+    firmware = "UEFI" if os.path.isdir("/sys/firmware/efi") else "Legacy BIOS"
+    secure_boot = "未知"
+    try:
+        for name in os.listdir("/sys/firmware/efi/efivars"):
+            if name.startswith("SecureBoot-"):
+                with open(f"/sys/firmware/efi/efivars/{name}", "rb") as fh:
+                    # efivars 的前 4 字节是属性头，其后才是值；SecureBoot 值只有 1 字节
+                    raw = fh.read()
+                if raw:
+                    secure_boot = "开启" if raw[-1] == 1 else "关闭"
+                break
+    except OSError:
+        pass
+
+    return {
+        "machine": f"{vendor} {model}".strip(),
+        "kernel": kernel,
+        "memoryBytes": mem_kb * 1024,
+        "firmware": firmware,
+        "secureBoot": secure_boot,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 作业（长任务）基础设施
+#
+# 文件救援、备份还原、恢复出厂都不是「点一下就返回」的操作——拷 50 GB 要几十
+# 分钟。HTTP 请求不能一直挂在那儿，所以统一走「提交作业 → 轮询进度」。
+#
+# 只用 threading，不引入任何队列框架：救援环境里同一时刻只有一个人坐在一台
+# 机器前面操作，并发量就是 1，复杂调度纯属负担。
+# ---------------------------------------------------------------------------
+
+JOBS = {}
+JOBS_LOCK = threading.Lock()
+# 同一时刻只允许一个作业。不是偷懒——两个作业同时写同一个卷，或者一个在还原
+# 系统盘另一个在往它上面拷文件，后果是数据损坏，而这是救援工具最不能出的事。
+JOB_EXCLUSIVE = True
+
+
+class Job:
+    """一个后台作业。字段直接就是给前端的 JSON，不额外做一层映射。"""
+
+    def __init__(self, jtype, title):
+        self.id = uuid.uuid4().hex[:12]
+        self.type = jtype
+        self.title = title
+        self.state = "pending"        # pending/scanning/running/done/failed/cancelled
+        self.message = ""
+        self.done_bytes = 0
+        self.total_bytes = 0
+        self.done_files = 0
+        self.total_files = 0
+        self.current = ""
+        # 单个文件读不出来不该让整个救援作业停下——恰恰相反，盘坏了才要救援，
+        # 遇到坏块应该跳过并记下来，把能救的都救出来。所以错误是收集不是抛出。
+        self.errors = []
+        self.started_at = time.time()
+        self.finished_at = None
+        self.result = {}
+        self.cancel = threading.Event()
+
+    def snapshot(self):
+        with JOBS_LOCK:
+            return {
+                "id": self.id,
+                "type": self.type,
+                "title": self.title,
+                "state": self.state,
+                "message": self.message,
+                "doneBytes": self.done_bytes,
+                "totalBytes": self.total_bytes,
+                "doneFiles": self.done_files,
+                "totalFiles": self.total_files,
+                "current": self.current,
+                # 错误可能上千条，全塞给前端没意义，给前 50 条和总数
+                "errors": self.errors[:50],
+                "errorCount": len(self.errors),
+                "startedAt": self.started_at,
+                "finishedAt": self.finished_at,
+                "elapsedSeconds": round((self.finished_at or time.time()) - self.started_at, 1),
+                "result": self.result,
+            }
+
+    def fail(self, msg):
+        with JOBS_LOCK:
+            self.state = "failed"
+            self.message = msg
+            self.finished_at = time.time()
+
+    def finish(self, msg, **result):
+        with JOBS_LOCK:
+            self.state = "cancelled" if self.cancel.is_set() else "done"
+            self.message = msg
+            self.result = result
+            self.finished_at = time.time()
+
+
+def active_job():
+    for job in JOBS.values():
+        if job.state in ("pending", "scanning", "running"):
+            return job
+    return None
+
+
+def start_job(jtype, title, target, args):
+    """登记并起一个作业线程。返回 (job, 错误信息)。"""
+    if JOB_EXCLUSIVE:
+        busy = active_job()
+        if busy is not None:
+            return None, f"已有作业在跑（{busy.title}），请等它结束或取消它"
+    job = Job(jtype, title)
+    JOBS[job.id] = job
+
+    def wrapper():
+        try:
+            target(job, **args)
+        except Exception as exc:  # 作业线程里抛异常没人接，必须自己兜住
+            job.fail(f"{type(exc).__name__}: {exc}")
+
+    threading.Thread(target=wrapper, name=f"job-{job.id}", daemon=True).start()
+    return job, None
+
+
+# ---------------------------------------------------------------------------
+# 卷与路径
+# ---------------------------------------------------------------------------
+
+# 分区名只允许字母数字。不允许 / 和 . ，路径穿越在这一步就断掉。
+DEV_NAME_RE = re.compile(r"^[a-zA-Z0-9]+$")
+
+
+def resolve_block_device(name):
+    """把前端传来的分区名（nvme0n1p3）变成 /dev 路径，非法返回 None。
+
+    两道都要：名字过白名单正则，且 /dev 下那个东西**确实是块设备**。
+    只查名字的话，/dev 里随便一个字符设备或普通文件都能被当成卷去挂。
+    """
+    if not name or not DEV_NAME_RE.match(name):
+        return None
+    path = "/dev/" + name
+    try:
+        if not stat.S_ISBLK(os.stat(path).st_mode):
+            return None
+    except OSError:
+        return None
+    return path
+
+
+def _mount_rw(dev, mnt):
+    """可写挂载 —— **整个后端唯一会写用户卷的入口**。
+
+    _mount_ro 的注释里写着「写操作等到用户在 UI 上明确确认了某个动作再单独
+    挂载」，这里就是那个「单独挂载」。调用点必须是用户点过确认的路径。
+    """
+    try:
+        os.makedirs(mnt, exist_ok=True)
+    except OSError:
+        return False
+    if os.path.ismount(mnt):
+        # 之前可能是只读挂上的，重挂成读写
+        run(["mount", "-o", "remount,rw", mnt], timeout=20)
+        return os.path.ismount(mnt)
+    run(["mount", dev, mnt], timeout=30)
+    return os.path.ismount(mnt)
+
+
+def safe_join(root, rel):
+    """把相对路径拼到挂载点下，确保结果没跑出去。返回 None 表示越界。
+
+    两道检查缺一不可：
+      1. normpath 之后比前缀 —— 挡住 ../../etc/shadow 这类
+      2. realpath 之后**再比一次** —— 挡住符号链接逃逸。这条在救援场景里
+         不是理论风险：Windows 卷上 `Documents and Settings` 本身就是指向
+         `\\Users` 的联接，ntfs-3g 会把它呈现成符号链接。一路 realpath 下去
+         完全可能走到挂载点外面，甚至走回救援系统自己的根文件系统。
+    """
+    root = os.path.realpath(root)
+    target = os.path.normpath(os.path.join(root, (rel or "").lstrip("/")))
+    if target != root and not target.startswith(root + os.sep):
+        return None
+    real = os.path.realpath(target)
+    if real != root and not real.startswith(root + os.sep):
+        return None
+    return target
+
+
+def mount_for_browse(dev_name):
+    """按分区名只读挂载，返回 (挂载点, 错误信息)。"""
+    dev = resolve_block_device(dev_name)
+    if not dev:
+        return None, f"非法或不存在的分区：{dev_name}"
+    mnt = os.path.join(MOUNT_ROOT, dev_name)
+    if not _mount_ro(dev, mnt):
+        return None, (f"{dev} 挂载失败。NTFS 卷若是被 Windows 快速启动或休眠"
+                      f"留在 dirty 状态，需要先在 Windows 里完全关机一次")
+    return mnt, None
+
+
+def browse(params):
+    """列一个目录。只读，永远只读。"""
+    dev_name = (params.get("dev") or [""])[0]
+    rel = (params.get("path") or ["/"])[0]
+
+    mnt, err = mount_for_browse(dev_name)
+    if err:
+        return {"ok": False, "reason": err}
+
+    target = safe_join(mnt, rel)
+    if target is None:
+        return {"ok": False, "reason": "路径越界，已拒绝"}
+    if not os.path.isdir(target):
+        return {"ok": False, "reason": f"不是目录：{rel}"}
+
+    entries = []
+    try:
+        with os.scandir(target) as it:
+            for ent in it:
+                try:
+                    is_dir = ent.is_dir(follow_symlinks=False)
+                    is_link = ent.is_symlink()
+                    st = ent.stat(follow_symlinks=False)
+                    size, mtime = st.st_size, st.st_mtime
+                except OSError:
+                    # 单个条目读不出来就标记它，不要让整个目录列不出来
+                    is_dir = is_link = False
+                    size, mtime = 0, 0
+                entries.append({
+                    "name": ent.name,
+                    "isDir": is_dir,
+                    "isLink": is_link,
+                    "sizeBytes": 0 if is_dir else size,
+                    "mtime": mtime,
+                })
+    except OSError as exc:
+        return {"ok": False, "reason": f"无法读取目录：{exc}"}
+
+    # 目录在前，再按名字排。中文名走 locale 排序意义不大，用码位序即可
+    entries.sort(key=lambda e: (not e["isDir"], e["name"].lower()))
+    return {"ok": True, "device": dev_name, "path": rel,
+            "mountpoint": mnt, "entries": entries}
+
+
+# ---------------------------------------------------------------------------
+# 作业：文件救援（拷出）
+# ---------------------------------------------------------------------------
+
+def _scan(job, src_paths):
+    """先数一遍有多少字节要拷，进度条才有分母。
+
+    坏盘上这一遍本身可能很慢，所以作业状态先设成 scanning，让 UI 有话说。
+    """
+    total_b = total_f = 0
+    for src in src_paths:
+        if job.cancel.is_set():
+            break
+        if os.path.isfile(src):
+            try:
+                total_b += os.path.getsize(src); total_f += 1
+            except OSError:
+                pass
+            continue
+        for root, dirs, files in os.walk(src, followlinks=False):
+            if job.cancel.is_set():
+                break
+            for name in files:
+                try:
+                    total_b += os.path.getsize(os.path.join(root, name))
+                    total_f += 1
+                except OSError:
+                    total_f += 1          # 数不出大小也算一个文件
+    return total_b, total_f
+
+
+def _copy_file(job, src, dst):
+    """拷一个文件，边拷边报进度，随时可取消。
+
+    分块拷而不是 shutil.copyfile：一是要报进度，二是要能中途取消，
+    三是坏块导致的 OSError 只影响这一个文件。
+    """
+    try:
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        with open(src, "rb") as fi, open(dst, "wb") as fo:
+            while True:
+                if job.cancel.is_set():
+                    return False
+                chunk = fi.read(1024 * 1024)
+                if not chunk:
+                    break
+                fo.write(chunk)
+                with JOBS_LOCK:
+                    job.done_bytes += len(chunk)
+        try:
+            st = os.stat(src)
+            os.utime(dst, (st.st_atime, st.st_mtime))
+        except OSError:
+            pass          # 目标是 FAT32/exFAT 时时间戳精度有限，不算失败
+        return True
+    except OSError as exc:
+        with JOBS_LOCK:
+            job.errors.append({"path": src, "error": str(exc)})
+        # 半截文件留在目标上比不留更危险——用户会以为救出来了
+        try:
+            os.unlink(dst)
+        except OSError:
+            pass
+        return False
+
+
+def job_copyout(job, src_dev, src_paths, dst_dev, dst_subdir):
+    """把源卷上的若干路径拷到目标卷。源只读挂，目标读写挂。"""
+    # 必须挡住字符串：JSON 里 "src_paths": "/Users" 是合法的，但下面
+    # `for rel in src_paths` 会**逐个字符**去拼路径，得到一堆 /mnt/.../U、
+    # /mnt/.../s ……然后报一串莫名其妙的"不存在"。
+    if not isinstance(src_paths, list) or not all(isinstance(p, str) for p in src_paths):
+        job.fail("src_paths 必须是字符串数组"); return
+
+    src_mnt, err = mount_for_browse(src_dev)
+    if err:
+        job.fail(err); return
+
+    dst = resolve_block_device(dst_dev)
+    if not dst:
+        job.fail(f"非法或不存在的目标分区：{dst_dev}"); return
+    # 拷到自己身上：轻则原地复制占满卷，重则源目录套目标目录无限递归。
+    if dst_dev == src_dev:
+        job.fail("目标卷不能和源卷是同一个分区"); return
+
+    dst_mnt = os.path.join(MOUNT_ROOT, dst_dev)
+    if not _mount_rw(dst, dst_mnt):
+        job.fail(f"目标卷 {dst} 无法以读写方式挂载"); return
+
+    # 目标子目录也要过 safe_join：前端传个 ../.. 就写到救援系统根上去了
+    dst_root = safe_join(dst_mnt, dst_subdir or "KLA-Rescued")
+    if dst_root is None:
+        job.fail("目标目录越界，已拒绝"); return
+
+    abs_srcs = []
+    for rel in src_paths:
+        p = safe_join(src_mnt, rel)
+        if p is None:
+            with JOBS_LOCK:
+                job.errors.append({"path": rel, "error": "路径越界，已跳过"})
+            continue
+        if os.path.exists(p):
+            abs_srcs.append(p)
+        else:
+            with JOBS_LOCK:
+                job.errors.append({"path": rel, "error": "不存在"})
+    if not abs_srcs:
+        job.fail("没有任何有效的源路径"); return
+
+    # 去掉被别的选中项包住的路径。前端已经去过一遍，但 API 不能指望调用方守规矩：
+    # 同时传 /Users 和 /Users/karl 不会拷错文件（内容一样，覆盖写而已），
+    # 却会让 _scan 把同一批数据数两遍——进度条的分母因此虚高，
+    # 用户看到的"总共要拷 12 GB"是假的，而救援时用户就是靠这个数字判断要等多久。
+    # 排序后父目录必然排在自己所有子项前面（父路径是子路径的严格前缀）。
+    abs_srcs.sort()
+    deduped = []
+    for p in abs_srcs:
+        if any(p == q or p.startswith(q + os.sep) for q in deduped):
+            continue
+        deduped.append(p)
+    abs_srcs = deduped
+
+    with JOBS_LOCK:
+        job.state = "scanning"
+        job.message = "正在统计要拷贝的数据量…"
+    total_b, total_f = _scan(job, abs_srcs)
+    with JOBS_LOCK:
+        job.total_bytes, job.total_files = total_b, total_f
+        job.state = "running"
+        job.message = "正在拷贝…"
+
+    # 空间够不够先算清楚，别拷到一半才发现（risks.md R4：绝不半途失败）
+    try:
+        vfs = os.statvfs(dst_mnt)
+        free = vfs.f_bavail * vfs.f_frsize
+        if total_b > free:
+            job.fail(f"目标卷空间不足：需要 {total_b // 2**20} MB，"
+                     f"只剩 {free // 2**20} MB")
+            return
+    except OSError:
+        pass
+
+    copied = 0
+    for src in abs_srcs:
+        if job.cancel.is_set():
+            break
+        if os.path.isdir(src):
+            # base 取父目录，relpath 才会把用户选中的那个文件夹名本身也带上，
+            # 否则拷出来的是它的内容散在目标根下
+            base = os.path.dirname(src.rstrip(os.sep))
+            for root, dirs, files in os.walk(src, followlinks=False):
+                if job.cancel.is_set():
+                    break
+                for name in files:
+                    if job.cancel.is_set():
+                        break
+                    s = os.path.join(root, name)
+                    d = os.path.join(dst_root, os.path.relpath(s, base))
+                    with JOBS_LOCK:
+                        job.current = os.path.relpath(s, src_mnt)
+                    if _copy_file(job, s, d):
+                        copied += 1
+                    with JOBS_LOCK:
+                        job.done_files += 1
+        else:
+            d = os.path.join(dst_root, os.path.basename(src))
+            with JOBS_LOCK:
+                job.current = os.path.relpath(src, src_mnt)
+            if _copy_file(job, src, d):
+                copied += 1
+            with JOBS_LOCK:
+                job.done_files += 1
+
+    run(["sync"], timeout=120)
+    job.finish(f"拷贝结束：成功 {copied} 个，失败 {len(job.errors)} 个",
+               copiedFiles=copied, destination=dst_root)
+
+
+JOB_TYPES = {
+    "copyout": (job_copyout, "文件救援：拷出"),
+}
+
+
+def submit_job(body):
+    jtype = body.get("type")
+    spec = JOB_TYPES.get(jtype)
+    if not spec:
+        return {"ok": False, "reason": f"未知作业类型：{jtype}"}, 400
+    target, title = spec
+    args = body.get("args") or {}
+    if not isinstance(args, dict):
+        return {"ok": False, "reason": "args 必须是对象"}, 400
+    # 只把作业函数声明了的参数传进去，前端多塞的字段一律丢弃
+    allowed = target.__code__.co_varnames[1:target.__code__.co_argcount]
+    missing = [k for k in allowed if k not in args]
+    if missing:
+        return {"ok": False, "reason": f"缺少参数：{', '.join(missing)}"}, 400
+    job, err = start_job(jtype, title, target, {k: args[k] for k in allowed})
+    if err:
+        return {"ok": False, "reason": err}, 409
+    return {"ok": True, "job": job.snapshot()}, 200
+
+
+def list_jobs():
+    return {"jobs": [j.snapshot() for j in JOBS.values()]}
+
+
+ROUTES = {
+    "/api/system": system_info,
+    "/api/disks": lambda: {"disks": list_disks()},
+    "/api/network": network_status,
+    "/api/tools": tool_availability,
+    "/api/backups": read_backup_index,
+    "/api/rescue": rescue_partition,
+    "/api/jobs": list_jobs,
+}
+
+# 需要查询串的 GET 路由。和 ROUTES 分开是因为签名不同，混在一个表里
+# 就得在调用点判断该不该传参，那种 if 迟早会传错。
+QUERY_ROUTES = {
+    "/api/browse": browse,
+}
+
+
+class Handler(BaseHTTPRequestHandler):
+    protocol_version = "HTTP/1.1"
+
+    def log_message(self, fmt, *args):
+        pass  # kiosk 环境不需要访问日志刷屏
+
+    def _send(self, code, body, ctype):
+        payload = body if isinstance(body, bytes) else body.encode("utf-8")
+        self.send_response(code)
+        self.send_header("Content-Type", ctype)
+        self.send_header("Content-Length", str(len(payload)))
+        self.send_header("Cache-Control", "no-store")
+        self.end_headers()
+        self.wfile.write(payload)
+
+    def _json(self, code, data):
+        self._send(code, json.dumps(data, ensure_ascii=False), "application/json")
+
+    def do_GET(self):
+        parsed = urlparse(self.path)
+        path = parsed.path
+
+        if path in ROUTES or path in QUERY_ROUTES:
+            try:
+                if path in ROUTES:
+                    data = ROUTES[path]()
+                else:
+                    data = QUERY_ROUTES[path](parse_qs(parsed.query))
+            except Exception as exc:  # 后端崩了也要让 UI 显示错误而不是白屏
+                self._json(500, {"error": str(exc)})
+                return
+            self._json(200, data)
+            return
+
+        # /api/jobs/<id> —— 轮询单个作业的进度
+        if path.startswith("/api/jobs/"):
+            job = JOBS.get(path[len("/api/jobs/"):])
+            if not job:
+                self._json(404, {"error": "作业不存在"})
+                return
+            self._json(200, job.snapshot())
+            return
+
+        rel = "index.html" if path in ("/", "") else path.lstrip("/")
+        target = os.path.normpath(os.path.join(WWW_ROOT, rel))
+        # 必须比到路径分隔符，否则 /opt/kla/www-xxx 会被当成 /opt/kla/www 的子路径
+        inside = target == WWW_ROOT or target.startswith(WWW_ROOT + os.sep)
+        if not inside or not os.path.isfile(target):
+            self._send(404, "not found", "text/plain; charset=utf-8")
+            return
+
+        ctype = MIME.get(os.path.splitext(target)[1], "application/octet-stream")
+        with open(target, "rb") as fh:
+            self._send(200, fh.read(), ctype)
+
+    def do_POST(self):
+        path = urlparse(self.path).path
+
+        # 请求体大小要设上限。这个服务只绑 127.0.0.1，但一个失控的前端脚本
+        # 就能把内存吃光——救援环境没有 swap，OOM 掉的是整个救援会话。
+        try:
+            length = int(self.headers.get("Content-Length") or 0)
+        except ValueError:
+            length = 0
+        if length > 1024 * 1024:
+            self._json(413, {"error": "请求体过大"})
+            return
+        raw = self.rfile.read(length) if length else b"{}"
+        try:
+            body = json.loads(raw.decode("utf-8") or "{}")
+        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+            self._json(400, {"error": f"请求体不是合法 JSON：{exc}"})
+            return
+        if not isinstance(body, dict):
+            self._json(400, {"error": "请求体必须是对象"})
+            return
+
+        if path == "/api/jobs":
+            try:
+                data, code = submit_job(body)
+            except Exception as exc:
+                self._json(500, {"error": str(exc)})
+                return
+            self._json(code, data)
+            return
+
+        # /api/jobs/<id>/cancel —— 只置标志位，由作业线程自己在下一个检查点退出。
+        # 不去 kill 线程：拷贝拷到一半被硬杀，目标卷上会留下半截文件。
+        if path.startswith("/api/jobs/") and path.endswith("/cancel"):
+            job = JOBS.get(path[len("/api/jobs/"):-len("/cancel")])
+            if not job:
+                self._json(404, {"error": "作业不存在"})
+                return
+            job.cancel.set()
+            self._json(200, {"ok": True, "job": job.snapshot()})
+            return
+
+        self._json(404, {"error": "no such endpoint"})
+
+
+def main():
+    server = ThreadingHTTPServer(("127.0.0.1", PORT), Handler)
+    try:
+        with open(READY_FLAG, "w", encoding="utf-8") as fh:
+            fh.write(str(os.getpid()))
+    except OSError:
+        pass
+    server.serve_forever()
+
+
+if __name__ == "__main__":
+    main()
